@@ -75,6 +75,7 @@ public class UserAutoBidDAO extends AbstractDAO<UserAutoBid> {
                                           METHOD_LIST,
                                           RANGE,
                                           false,
+                                          false,
                                           (Date) null,
                                           DEFAULT_LAST_BID_TIME,
                                           true);

@@ -151,7 +151,6 @@ public class ImageServiceBean implements ImageService {
         return new PagedResult<>(result, images.getTotalSize());
     }
 
-    @Override
     public PagedResult<com.creditcloud.image.Image> list(String clientCode,
                                                          RealmEntity owner,
                                                          PageInfo info,
@@ -159,7 +158,6 @@ public class ImageServiceBean implements ImageService {
         return list(clientCode, owner, info, size, false);
     }
 
-    @Override
     public PagedResult<com.creditcloud.image.Image> list(String clientCode, RealmEntity owner, PageInfo info) {
         return list(clientCode, owner, info, ImageSize.ORIGINAL);
     }

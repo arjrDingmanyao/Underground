@@ -202,6 +202,12 @@ public class UserAutoBid extends BaseEntity {
      */
     @Column(nullable = false)
     private boolean mortgaged;
+    
+    /**
+     * true代表打开全投
+     */
+    @Column(nullable = false)
+    private boolean allIn;
 
     /**
      * 投标工具最近一次开启时间
@@ -227,6 +233,7 @@ public class UserAutoBid extends BaseEntity {
                        Collection<RepaymentMethod> repayMethod,
                        AutoBidRange range,
                        boolean mortgaged,
+                       boolean allIn,
                        Date activedTime,
                        Date lastBidTime,
                        boolean enable) {
@@ -237,6 +244,7 @@ public class UserAutoBid extends BaseEntity {
         this.reservedAmount = reservedAmount;
         this.repayMethod = repayMethod;
         this.mortgaged = mortgaged;
+        this.allIn = allIn;
         this.activedTime = activedTime;
         this.lastBidTime = lastBidTime;
         this.range = range;
@@ -289,6 +297,14 @@ public class UserAutoBid extends BaseEntity {
 
     public void setMortgaged(boolean mortgaged) {
         this.mortgaged = mortgaged;
+    }
+
+    public boolean isAllIn() {
+        return allIn;
+    }
+
+    public void setAllIn(boolean allIn) {
+        this.allIn = allIn;
     }
 
     public void setReservedAmount(int reservedAmount) {

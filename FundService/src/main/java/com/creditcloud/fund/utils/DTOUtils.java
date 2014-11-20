@@ -92,6 +92,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                                                 bid.getRepayMethod(),
                                                                 getAutoBidRange(bid.getRange()),
                                                                 bid.isMortgaged(),
+                                                                bid.isAllIn(),
                                                                 bid.getActivedTime(),
                                                                 bid.getLastBidTime());
             result.setEnable(bid.isEnable());
@@ -109,6 +110,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                      bid.getRepayMethod(),
                                      convertAutoBidRange(bid.getRange()),
                                      bid.isMortgaged(),
+                                     bid.isAllIn(),
                                      bid.getActivedTime(),
                                      bid.getLastBidTime(),
                                      bid.isEnable());
