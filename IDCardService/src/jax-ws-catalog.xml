@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="http://www.creditcloud.com/IDVerifier/CheckID?wsdl" uri="wsdl/www.creditcloud.com/IDVerifier/CheckID.wsdl"/>
+    <system systemId="http://www.creditcloud.com:80/IDVerifier/CheckID?xsd=1" uri="wsdl/www.creditcloud.com_80/IDVerifier/CheckID.xsd_1.xsd"/>
+</catalog>

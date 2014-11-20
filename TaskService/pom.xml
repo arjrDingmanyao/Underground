@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>Parent</artifactId>
+        <groupId>com.creditcloud</groupId>
+        <version>1.0.0</version>
+    </parent>
+
+    <groupId>com.creditcloud.task</groupId>
+    <artifactId>TaskService</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>ejb</packaging>
+
+    <name>TaskService</name>
+    
+    <dependencies>
+        <!-- CreditCloud -->
+        <dependency>
+            <groupId>com.creditcloud.task</groupId>
+            <artifactId>Task</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.config</groupId>
+            <artifactId>Config</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.client</groupId>
+            <artifactId>Client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.common</groupId>
+            <artifactId>Common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- JPA -->
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>2.5.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <ejbVersion>3.1</ejbVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

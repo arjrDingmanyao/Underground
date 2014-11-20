@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.creditcloud.sms</groupId>
+    <artifactId>SMSService</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>ejb</packaging>
+
+    <parent>
+        <groupId>com.creditcloud</groupId>
+        <artifactId>Parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    
+    <name>SMSService</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+    </properties>
+
+    <dependencies>
+        <!-- creditcloud -->
+        <dependency>
+            <groupId>com.creditcloud.logging</groupId>
+            <artifactId>Logging</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.config</groupId>
+            <artifactId>Config</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.sms</groupId>
+            <artifactId>SMS</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        
+        <!-- thrid party for sending sms-->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.2.5</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.8</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <artifactId>commons-logging</artifactId>
+            <groupId>commons-logging</groupId>
+            <type>jar</type>
+            <version>1.0.4</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <ejbVersion>3.1</ejbVersion>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${endorsed.dir}</outputDirectory>
+                            <silent>true</silent>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>javax</groupId>
+                                    <artifactId>javaee-endorsed-api</artifactId>
+                                    <version>7.0</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

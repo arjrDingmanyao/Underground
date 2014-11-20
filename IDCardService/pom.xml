@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.creditcloud.idcard</groupId>
+    <artifactId>IDCardService</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>ejb</packaging>
+
+    <name>IDCardService</name>
+
+    <parent>
+        <artifactId>Parent</artifactId>
+        <groupId>com.creditcloud</groupId>
+        <version>1.0.0</version>
+    </parent>
+    
+    <dependencies>
+        <!-- CreditCloud -->
+        <dependency>
+            <groupId>com.creditcloud.idcard</groupId>
+            <artifactId>IDCard</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.logging</groupId>
+            <artifactId>Logging</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <resources>
+            <resource>
+                <targetPath>META-INF</targetPath>
+                <directory>src</directory>
+                <includes>
+                    <include>jax-ws-catalog.xml</include>
+                    <include>wsdl/**</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <ejbVersion>3.1</ejbVersion>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jvnet.jax-ws-commons</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>www.creditcloud.com/IDVerifier/CheckID.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>http://www.creditcloud.com/IDVerifier/CheckID?wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/CheckID.stale</staleFile>
+                        </configuration>
+                        <id>wsimport-generate-CheckID</id>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.xml</groupId>
+                        <artifactId>webservices-api</artifactId>
+                        <version>1.4</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
+                    <xnocompile>true</xnocompile>
+                    <verbose>true</verbose>
+                    <extension>true</extension>
+                    <catalog>${basedir}/src/jax-ws-catalog.xml</catalog>
+                    <target>2.0</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
