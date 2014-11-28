@@ -115,6 +115,7 @@ public class UserAutoBidDAO extends AbstractDAO<UserAutoBid> {
             result.setActivedTime(bid.getActivedTime());
             result.setLastBidTime(bid.getLastBidTime());
             result.setMortgaged(bid.isMortgaged());
+            result.setAllIn(bid.isAllIn());
             result.setRange(DTOUtils.convertAutoBidRange(bid.getRange()));
             result.setRepayMethod(bid.getRepayMethod());
             result.setReservedAmount(bid.getReservedAmount());
