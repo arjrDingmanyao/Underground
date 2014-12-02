@@ -32,5 +32,6 @@
         <module>CMSService</module>
         <module>CorporationService</module>
         <module>WealthProductService</module>
+        <module>ContractService</module>
   </modules>
 </project>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.creditcloud</groupId>
+        <artifactId>Parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <groupId>com.creditcloud.contract</groupId>
+    <artifactId>ContractService</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>ejb</packaging>
+
+    <name>ContractService</name>
+    
+    <dependencies>
+        <!-- CreditCloud -->
+        <dependency>
+            <groupId>com.creditcloud.common</groupId>
+            <artifactId>Common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.contract</groupId>
+            <artifactId>Contract</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.client</groupId>
+            <artifactId>Client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.user</groupId>
+            <artifactId>User</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.fund</groupId>
+            <artifactId>Fund</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.tag</groupId>
+            <artifactId>Tag</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- PDF generate -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
+            <type>jar</type>
+        </dependency>
+        <!-- JPA -->
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>2.5.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- PDF ADD SEAL (FMAX)-->
+        <dependency>
+            <groupId>formax</groupId>
+            <artifactId>barcode</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>formax</groupId>
+            <artifactId>bcmail</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>formax</groupId>
+            <artifactId>bcprov</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>formax</groupId>
+            <artifactId>bctsp</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>formax</groupId>
+            <artifactId>pdfsealcore</artifactId>
+            <version>1.0</version>
+        </dependency>
+<!--        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.0</version>
+            <type>jar</type>
+        </dependency>-->
+        <dependency>
+            <groupId>com.creditcloud.claim</groupId>
+            <artifactId>Claim</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.creditcloud.lending</groupId>
+            <artifactId>Lending</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <ejbVersion>3.1</ejbVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
