@@ -108,6 +108,69 @@ public class ContractServiceBean
     ContractSealDAO contractSealDAO;
 
     @Asynchronous
+    public void generateAssignContract(Client client, Invest originalInvest, Invest invest, Loan loan, List<Repayment> repayments, FeeConfig feeConfig, String templateId) {
+        StopWatch sw = new StopWatch();
+        sw.start();
+        this.appBean.checkClientCode(client.getCode());
+
+        List<com.creditcloud.contract.entities.Contract> results = this.contractDAO.findByEntityAndType(client.getCode(), new RealmEntity(Realm.INVEST, invest.getId()), ContractType.CREDITASSIGN);
+        if ((results != null) && (!results.isEmpty())) {
+            this.logger.warn("Contract for Invest already exist.[investId={}]", invest.getId());
+        }
+        expandInvest(invest);
+
+        Contract contract = new Contract();
+
+        contract.setId(UUID.randomUUID().toString());
+        contract.setName(String.format("%s与%s的债权转让合同_%s_%s", new Object[]{originalInvest.getUser().getName(), invest.getUser().getName(), loan.getTitle(), TimeConstant.SIMPLE_CHINESE_DATE_FORMAT.format(new Date())}));
+
+        contract.setClient(client);
+        contract.setEntity(new RealmEntity(Realm.INVEST, invest.getId()));
+        contract.setTimeCreated(new Date());
+        contract.setType(ContractType.CREDITASSIGN);
+
+        Map<ContractParty, User> userRelated = new HashMap();
+        userRelated.put(ContractParty.FIRST, originalInvest.getUser());
+        userRelated.put(ContractParty.SECOND, invest.getUser());
+        contract.setUserRelated(userRelated);
+
+        Map<String, Object> values = generateValue(null, client, loan, invest, feeConfig, contract);
+
+        PDFUtils.Fields fields = PDFUtils.convertToPdfFieldForAssign(contract.getId(), client, loan, originalInvest, invest, repayments, feeConfig, this.appBean.getClientConfig(), loan.getTimeSettled() != null ? loan.getTimeSettled() : new Date(), values);
+        ContractTemplate template;
+        if ((templateId != null) && (this.contractTemplateService.getById(this.appBean.getClientCode(), templateId, false) != null)) {
+            template = this.contractTemplateService.getById(this.appBean.getClientCode(), templateId, true);
+            this.logger.debug("Specific template used.[templateId={}]", templateId);
+        } else {
+            Tag templateTag = this.tagService.refer(this.appBean.getClientCode(), new RealmEntity(Realm.LOANREQUEST, loan.getLoanRequest().getId()), Realm.CONTRACTTEMPLATE);
+            if ((templateTag == null) || (this.contractTemplateService.getById(this.appBean.getClientCode(), templateTag.getName(), false) == null)) {
+                template = this.contractTemplateService.getDefault(this.appBean.getClientCode(), null);
+                this.logger.debug("Default template used.");
+            } else {
+                template = this.contractTemplateService.getById(this.appBean.getClientCode(), templateTag.getName(), true);
+                this.logger.debug("Assigned tempalte loaded.[templateId={}]", template.getId());
+            }
+        }
+        try {
+            byte[] out = PDFUtils.claimTemplateToPdf(fields, template.getContent(), this.appBean.getWatermark());
+//            byte[] out = PDFUtils.templateToPdf(fields, template.getContent(), this.appBean.getWatermark());
+            contract.setContent(out);
+            
+           
+        } catch (IOException | DocumentException ex) {
+            this.logger.error("Can't fullfil the template!", ex);
+        }
+        //为受让人增加一份合同
+        this.contractDAO.addNew(contract);
+        
+        //在为转让人添加一份合同，相当于是一式两份
+        contract.setEntity(new RealmEntity(Realm.INVEST, originalInvest.getId()));
+        this.contractDAO.addNew(contract);
+
+        this.logger.info("Contract generated.[contractId={}][contractName={}][time={}]", new Object[]{contract.getId(), contract.getName(), Long.valueOf(sw.getTime())});
+    }
+    
+    @Asynchronous
     public void testGenerateContract(Client client, Loan loan, String templateId, List<ContractSeal> seals) {
         StopWatch sw = new StopWatch();
         sw.start();
@@ -520,6 +583,10 @@ public class ContractServiceBean
 
     public Contract getLoanContract(String clientCode, RealmEntity contractEntity, boolean withContent) {
         return getContractByEntityAndType(clientCode, contractEntity, withContent, ContractType.LOAN);
+    }
+    
+    public Contract getAssignContract(String clientCode, RealmEntity contractEntity, boolean withContent) {
+        return getContractByEntityAndType(clientCode, contractEntity, withContent, ContractType.CREDITASSIGN);
     }
 
     protected List<Invest> filterInvest(List<Invest> investList) {

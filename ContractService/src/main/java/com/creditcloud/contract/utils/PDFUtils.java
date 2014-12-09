@@ -187,6 +187,94 @@ public class PDFUtils
     public Map<String, Object> values = new ConcurrentHashMap();
     public Map<String, String> extendValues = new ConcurrentHashMap();
     public List<RepaymentPlan> RepaymentPlanList = new CopyOnWriteArrayList();
+    
+    //增加债权转让pdf字段
+    public String SRRName;
+    public String SRRIdNumber;
+    public String SRRloginName;
+    public String originalAmount;
+    public String assignAmount;
+    public String assignFeeAmount;
+    public String assignDate;
+    public String assignPeriod;
+    public String assignDateFrom;
+    public String assignDateTo;
+  }
+  
+  public static Fields convertToPdfFieldForAssign(String no, com.creditcloud.model.client.Client legal, Loan loan, Invest originalInvest,Invest invest, List<Repayment> repaymentList, FeeConfig feeConfig, ClientConfig clientConfig, Date signDate, Map<String, Object> values)
+  {
+    User creditor = invest.getUser();
+    User ssr = invest.getUser();
+    User debtor = loan.getLoanRequest().getUser();
+    
+    Fields fields = new Fields();
+    fields.values = values;
+    if (values != null)
+    {
+      fields.values = values;
+      fields.values.put("loanBidAmount", Integer.valueOf(loan.getBidAmount()));
+    }
+    String serial = getSerial(clientConfig, loan);
+    if ((serial != null) && (!serial.isEmpty())) {
+      fields.serial = serial;
+    }
+    fields.CJRName = originalInvest.getUser().getName();
+    fields.CJRloginName = originalInvest.getUser().getLoginName();
+    fields.CJRIdNumber = originalInvest.getUser().getIdNumber();
+    
+    fields.SRRName = creditor.getName();
+    fields.SRRloginName = creditor.getLoginName();
+    fields.SRRIdNumber = creditor.getIdNumber();
+    
+    fields.JKRName = debtor.getName();
+    fields.JKRloginName = debtor.getLoginName();
+    fields.JKRIdNumber = debtor.getIdNumber();
+    fields.JKRIdNumberPrivacy = new StringBuffer(debtor.getIdNumber()).replace(6, 14, "********").toString();
+    fields.zwr = debtor.getName();
+    
+    
+    fields.amount = ("人民币" + loan.getAmount() + "元整");
+    fields.amountUpper = (toChineseCurrency(invest.getAmount()) + "整");
+    
+    fields.loanPurpose = loan.getLoanRequest().getPurpose().getKey();
+    fields.loanRate = (invest.getRate() / 100.0F + "%");
+    Date timeFinished = signDate;
+    Duration duration = invest.getDuration();
+    fields.loanDate = toPdfDateString(timeFinished);
+    Calendar c = Calendar.getInstance();
+    c.setTime(timeFinished);
+    c.add(5, duration.getDays());
+    c.add(1, duration.getYears());
+    c.add(2, duration.getMonths());
+    fields.endDate = toPdfDateString(c.getTime());
+    fields.cxrDate = toPdfDateString(timeFinished);
+    fields.repayDate = "见附件还款详情";
+    fields.repayMethod = loan.getMethod().getKey();
+    fields.repayMethodOrdinal = String.valueOf(loan.getMethod().ordinal() + 1);
+    fields.repayAmount = (loan.getMethod() == RepaymentMethod.EqualInstallment ? "人民币" + ((Repayment)repaymentList.get(0)).getAmount() + "元" : "见附件还款详情");
+    fields.repayAmountMonthly = "见附件还款详情及账户管理费比例";
+    fields.repaymentNo = repaymentList.size() + "";
+    fields.signDate = toPdfDateString(signDate);
+    fields.agreementNo = (legal.getCode() + no.substring(0, 8).toUpperCase());
+    fields.fr = legal.getName();
+    fields.name = legal.getShortName();
+    fields.titleName = legal.getShortName();
+    fields.url = legal.getUrl();
+    //还款计划
+    fields.repaymentMonthlyListForInvestor = repaymentList;
+    if (values.containsKey("loanDuration")) {
+      fields.extendValues.put("loanDuration", (String)values.get("loanDuration"));
+    }
+    
+    //增加转让信息
+    fields.originalAmount = invest.getAmount().toString();
+    fields.assignAmount = "95";
+    fields.assignFeeAmount = "2";
+    fields.assignDate = toPdfDateString(new Date());
+    fields.assignPeriod = "3";
+    fields.assignDateFrom = "2014-12-08";
+    fields.assignDateTo = "2014-12-08";
+    return fields;
   }
   
   public static Fields convertToPdfField(String no, com.creditcloud.model.client.Client legal, Loan loan, Invest invest, List<Repayment> repaymentList, FeeConfig feeConfig, ClientConfig clientConfig, Date signDate, Map<String, Object> values)
