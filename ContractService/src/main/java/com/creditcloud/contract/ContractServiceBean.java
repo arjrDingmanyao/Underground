@@ -21,6 +21,7 @@ import com.creditcloud.model.client.Client;
 import com.creditcloud.model.constant.TimeConstant;
 import com.creditcloud.model.enums.Realm;
 import com.creditcloud.model.enums.loan.InvestStatus;
+import com.creditcloud.model.loan.CreditAssign;
 import com.creditcloud.model.loan.Duration;
 import com.creditcloud.model.loan.Invest;
 import com.creditcloud.model.loan.Loan;
@@ -108,7 +109,7 @@ public class ContractServiceBean
     ContractSealDAO contractSealDAO;
 
     @Asynchronous
-    public void generateAssignContract(Client client, Invest originalInvest, Invest invest, Loan loan, List<Repayment> repayments, FeeConfig feeConfig, String templateId) {
+    public void generateAssignContract(Client client, Invest originalInvest, Invest invest, Loan loan, List<Repayment> repayments, FeeConfig feeConfig, String templateId, CreditAssign creditAssign) {
         StopWatch sw = new StopWatch();
         sw.start();
         this.appBean.checkClientCode(client.getCode());
@@ -136,7 +137,7 @@ public class ContractServiceBean
 
         Map<String, Object> values = generateValue(null, client, loan, invest, feeConfig, contract);
 
-        PDFUtils.Fields fields = PDFUtils.convertToPdfFieldForAssign(contract.getId(), client, loan, originalInvest, invest, repayments, feeConfig, this.appBean.getClientConfig(), loan.getTimeSettled() != null ? loan.getTimeSettled() : new Date(), values);
+        PDFUtils.Fields fields = PDFUtils.convertToPdfFieldForAssign(contract.getId(), client, loan, originalInvest, invest, repayments, feeConfig, this.appBean.getClientConfig(), loan.getTimeSettled() != null ? loan.getTimeSettled() : new Date(), values, creditAssign);
         ContractTemplate template;
         if ((templateId != null) && (this.contractTemplateService.getById(this.appBean.getClientCode(), templateId, false) != null)) {
             template = this.contractTemplateService.getById(this.appBean.getClientCode(), templateId, true);
