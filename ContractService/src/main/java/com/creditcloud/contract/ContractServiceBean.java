@@ -165,6 +165,7 @@ public class ContractServiceBean
         this.contractDAO.addNew(contract);
         
         //在为转让人添加一份合同，相当于是一式两份
+        contract.setId(UUID.randomUUID().toString());
         contract.setEntity(new RealmEntity(Realm.INVEST, originalInvest.getId()));
         this.contractDAO.addNew(contract);
 
