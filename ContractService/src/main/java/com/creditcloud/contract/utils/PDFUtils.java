@@ -282,11 +282,12 @@ public class PDFUtils
     fields.assignPeriod = repaymentList.size() + "";
     Duration assignDuration = invest.getDuration();
     c.clear();
+    c.setTime(timeFinished);
     c.add(5, assignDuration.getDays());
     c.add(1, assignDuration.getYears());
     c.add(2, assignDuration.getMonths());
-    fields.assignDateFrom = toPdfDateString(c.getTime());
-    fields.assignDateTo = toPdfDateString(timeFinished);
+    fields.assignDateTo = toPdfDateString(c.getTime());
+    fields.assignDateFrom = toPdfDateString(timeFinished);
     return fields;
   }
   
