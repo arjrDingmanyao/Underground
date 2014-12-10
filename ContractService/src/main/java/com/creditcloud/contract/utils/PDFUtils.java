@@ -11,7 +11,6 @@ import com.creditcloud.contract.Seal;
 import com.creditcloud.fund.model.FundAccount;
 import com.creditcloud.model.PersonalInfo;
 import com.creditcloud.model.PlaceInfo;
-import com.creditcloud.model.constant.NumberConstant;
 import com.creditcloud.model.enums.loan.RepaymentMethod;
 import com.creditcloud.model.enums.misc.ContractSealType;
 import com.creditcloud.model.loan.CreditAssign;
@@ -268,7 +267,7 @@ public class PDFUtils
     }
     //增加转让信息
     fields.originalAmount = invest.getAmount().toString();
-    fields.assignAmount = creditAssign.getCreditDealRate().multiply(invest.getAmount()).setScale(2, NumberConstant.ROUNDING_MODE).toString();
+    fields.assignAmount = creditAssign.getCreditDealAmount().toString();
     fields.assignFeeAmount = creditAssign.getFee().toString();
     fields.assignDate = toPdfDateString(new Date());
     fields.assignPeriod = repaymentList.size() + "";
