@@ -13,6 +13,7 @@ import com.creditcloud.model.PersonalInfo;
 import com.creditcloud.model.PlaceInfo;
 import com.creditcloud.model.enums.loan.RepaymentMethod;
 import com.creditcloud.model.enums.misc.ContractSealType;
+import com.creditcloud.model.loan.CreditAssign;
 import com.creditcloud.model.loan.Duration;
 import com.creditcloud.model.loan.Invest;
 import com.creditcloud.model.loan.Loan;
@@ -201,10 +202,9 @@ public class PDFUtils
     public String assignDateTo;
   }
   
-  public static Fields convertToPdfFieldForAssign(String no, com.creditcloud.model.client.Client legal, Loan loan, Invest originalInvest,Invest invest, List<Repayment> repaymentList, FeeConfig feeConfig, ClientConfig clientConfig, Date signDate, Map<String, Object> values)
+  public static Fields convertToPdfFieldForAssign(String no, com.creditcloud.model.client.Client legal, Loan loan, Invest originalInvest,Invest invest, List<Repayment> repaymentList, FeeConfig feeConfig, ClientConfig clientConfig, Date signDate, Map<String, Object> values, CreditAssign creditAssign)
   {
     User creditor = invest.getUser();
-    User ssr = invest.getUser();
     User debtor = loan.getLoanRequest().getUser();
     
     Fields fields = new Fields();
@@ -237,10 +237,11 @@ public class PDFUtils
     fields.amountUpper = (toChineseCurrency(invest.getAmount()) + "整");
     
     fields.loanPurpose = loan.getLoanRequest().getPurpose().getKey();
-    fields.loanRate = (invest.getRate() / 100.0F + "%");
+    fields.loanRate = (originalInvest.getRate() / 100.0F + "%");
     Date timeFinished = signDate;
-    Duration duration = invest.getDuration();
-    fields.loanDate = toPdfDateString(timeFinished);
+    Duration duration = originalInvest.getDuration();
+    String date = toPdfDateString(timeFinished);
+    fields.loanDate = date.substring(date.indexOf("月") + 1);
     Calendar c = Calendar.getInstance();
     c.setTime(timeFinished);
     c.add(5, duration.getDays());
@@ -253,7 +254,15 @@ public class PDFUtils
     fields.repayMethodOrdinal = String.valueOf(loan.getMethod().ordinal() + 1);
     fields.repayAmount = (loan.getMethod() == RepaymentMethod.EqualInstallment ? "人民币" + ((Repayment)repaymentList.get(0)).getAmount() + "元" : "见附件还款详情");
     fields.repayAmountMonthly = "见附件还款详情及账户管理费比例";
-    fields.repaymentNo = repaymentList.size() + "";
+    int month;
+    if(loan.getDuration().getYears() != 0){
+        month = loan.getDuration().getYears() * 12;
+    }else if(loan.getDuration().getMonths() != 0){
+        month = loan.getDuration().getMonths();
+    }else{
+        month = loan.getDuration().getDays()/30;
+    }
+    fields.repaymentNo = month + "";
     fields.signDate = toPdfDateString(signDate);
     fields.agreementNo = (legal.getCode() + no.substring(0, 8).toUpperCase());
     fields.fr = legal.getName();
@@ -265,15 +274,20 @@ public class PDFUtils
     if (values.containsKey("loanDuration")) {
       fields.extendValues.put("loanDuration", (String)values.get("loanDuration"));
     }
-    
     //增加转让信息
     fields.originalAmount = invest.getAmount().toString();
-    fields.assignAmount = "95";
-    fields.assignFeeAmount = "2";
+    fields.assignAmount = creditAssign.getCreditDealAmount().toString();
+    fields.assignFeeAmount = creditAssign.getFee().toString();
     fields.assignDate = toPdfDateString(new Date());
-    fields.assignPeriod = "3";
-    fields.assignDateFrom = "2014-12-08";
-    fields.assignDateTo = "2014-12-08";
+    fields.assignPeriod = repaymentList.size() + "";
+    Duration assignDuration = invest.getDuration();
+    c.clear();
+    c.setTime(timeFinished);
+    c.add(5, assignDuration.getDays());
+    c.add(1, assignDuration.getYears());
+    c.add(2, assignDuration.getMonths());
+    fields.assignDateTo = toPdfDateString(c.getTime());
+    fields.assignDateFrom = toPdfDateString(timeFinished);
     return fields;
   }
   
@@ -1212,11 +1226,11 @@ public class PDFUtils
     }
     document.newPage();
     
-    insertTitleToDocument(document, "附件1：原始债权还款计划列表", 12, 1);
+//    insertTitleToDocument(document, "附件1：原始债权还款计划列表", 12, 1);
+//    
+//    document.add(addClaimRepayPlanTable(fields));
     
-    document.add(addClaimRepayPlanTable(fields));
-    
-    insertTitleToDocument(document, "附件2：本协议标的转让后本金还款计划列表", 12, 1);
+    insertTitleToDocument(document, "附件1：本协议标的转让后本金还款计划列表", 12, 1);
     document.add(addRepayTableForInvestor(fields));
     
     document.close();
@@ -1450,6 +1464,36 @@ public class PDFUtils
     s.setFieldProperty("signDate", "textfont", bf, null);
     s.setField("signDate", fields.signDate);
     
+    //在域中增加受让人信息
+    s.setFieldProperty("SRRloginName", "textfont", bf, null);
+    s.setField("SRRloginName", fields.SRRloginName);
+    
+    s.setFieldProperty("SRRName", "textfont", bf, null);
+    s.setField("SRRName", fields.SRRName);
+    
+    s.setFieldProperty("SRRIdNumber", "textfont", bf, null);
+    s.setField("SRRIdNumber", fields.SRRIdNumber);
+    
+    s.setFieldProperty("originalAmount", "textfont", bf, null);
+    s.setField("originalAmount", fields.originalAmount);
+    
+    s.setFieldProperty("assignAmount", "textfont", bf, null);
+    s.setField("assignAmount", fields.assignAmount);
+    
+    s.setFieldProperty("assignFeeAmount", "textfont", bf, null);
+    s.setField("assignFeeAmount", fields.assignFeeAmount);
+    
+    s.setFieldProperty("assignDate", "textfont", bf, null);
+    s.setField("assignDate", fields.assignDate);
+    
+    s.setFieldProperty("assignPeriod", "textfont", bf, null);
+    s.setField("assignPeriod", fields.assignPeriod);
+    
+    s.setFieldProperty("assignDateFrom", "textfont", bf, null);
+    s.setField("assignDateFrom", fields.assignDateFrom);
+    
+    s.setFieldProperty("assignDateTo", "textfont", bf, null);
+    s.setField("assignDateTo", fields.assignDateTo);
 
     Map<String, Object> values = fields.values;
     if (values != null)
