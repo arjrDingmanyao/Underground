@@ -24,7 +24,9 @@ import javax.persistence.NamedQuery;
 @DiscriminatorValue("FundFee")
 @NamedQueries({
     @NamedQuery(name = "FundFee.getByOrderId",
-                query = "select ff from FundFee ff where ff.fund.userId = :userId and ff.orderId = :orderId")
+                query = "select ff from FundFee ff where ff.fund.userId = :userId and ff.orderId = :orderId"),
+    @NamedQuery(name = "FundFee.getFundFeeByOrderId",
+                query = "select ff from FundFee ff where ff.orderId = :orderId")
 })
 public class FundFee extends FundRecord {
 
