@@ -18,6 +18,7 @@ import com.creditcloud.fund.entities.record.FundInvest;
 import com.creditcloud.fund.entities.record.FundRecord;
 import com.creditcloud.fund.entities.record.FundTransfer;
 import com.creditcloud.fund.entities.record.FundWithdraw;
+import com.creditcloud.fund.entities.FundWithdrawHistory;
 import com.creditcloud.fund.entities.record.UserFundHistory;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -397,5 +398,31 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
             result.setId(request.getId());
         }
         return result;
+    }
+    
+     /**
+     * 提现历史
+     *
+     * @param record
+     * @return
+     */
+    public static com.creditcloud.fund.model.FundWithdrawHistory getFundWithdrawHistoryDTO(FundWithdrawHistory record) {
+	com.creditcloud.fund.model.FundWithdrawHistory result = null;
+	if (record != null) {
+	    result = new com.creditcloud.fund.model.FundWithdrawHistory(record.getId(),
+		    record.getFund().getUserId(),
+		    record.getAccount() == null ? null : getBankAccountDTO(record.getAccount().getAccount()),
+		    record.getAmount(),
+		    record.getEmployeeId(),
+		    record.getOrderId(),
+		    record.getTransactionId(),
+		    record.getStatus(),
+		    record.getTransferAmount(),
+		    record.getApproveDateTime(),
+		    record.getTimeRecorded(),
+		    record.getDescription());
+	    result.setTimeRecorded(record.getTimeRecorded());
+	}
+	return result;
     }
 }
