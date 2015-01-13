@@ -7,32 +7,35 @@
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>com.creditcloud</groupId>
-        <artifactId>Parent</artifactId>
-        <version>1.0.0</version>
+	<groupId>com.creditcloud</groupId>
+	<artifactId>Parent</artifactId>
+	<version>1.0.0</version>
     </parent>
 
     <name>Underground</name>
     <modules>
-        <module>ClientService</module>
-        <module>EmailService</module>
-        <module>ImageService</module>
-        <module>MessageService</module>
-        <module>SMSService</module>
-        <module>UserService</module>
-        <module>IDCardService</module>
-        <module>CommentService</module>
-        <module>FileService</module>
-        <module>TaskService</module>
-        <module>FundService</module>
-        <module>ActivityService</module>
-        <module>TagService</module>
-        <module>AppointService</module>
-        <module>NewsService</module>
-        <module>CMSService</module>
-        <module>CorporationService</module>
-        <module>WealthProductService</module>
-        <module>ContractService</module>
-        <module>PaymentService</module>
-  </modules>
+	<module>ClientService</module>
+	<module>EmailService</module>
+	<module>ImageService</module>
+	<module>MessageService</module>
+	<module>SMSService</module>
+	<module>UserService</module>
+	<module>IDCardService</module>
+	<module>CommentService</module>
+	<module>FileService</module>
+	<module>TaskService</module>
+	<module>FundService</module>
+	<module>ActivityService</module>
+	<module>TagService</module>
+	<module>AppointService</module>
+	<module>NewsService</module>
+	<module>CMSService</module>
+	<module>CorporationService</module>
+	<module>WealthProductService</module>
+	<module>ContractService</module>
+	<module>PaymentService</module>
+	<module>PaymentService</module>
+	<module>CarInsuranceService</module>
+    </modules>
 </project>
+
