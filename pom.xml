@@ -33,6 +33,7 @@
 	<module>CorporationService</module>
 	<module>WealthProductService</module>
 	<module>ContractService</module>
+	<module>PaymentService</module>
 	<module>CarInsuranceService</module>
     </modules>
 </project>
