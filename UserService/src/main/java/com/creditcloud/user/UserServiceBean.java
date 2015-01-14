@@ -172,6 +172,7 @@ public class UserServiceBean implements UserService {
         appBean.checkClientCode(clientCode);
         logger.debug("Adding user for client.[client={}][user={}]", clientCode, user);
         User entityUser = DTOUtils.convertUserDTO(user);
+        entityUser.setLastLoginDate(new Date());
         entityUser.password(password);
         entityUser.setNeedChangePassword(needChangePassword);
         return userBean.createUser(entityUser);
