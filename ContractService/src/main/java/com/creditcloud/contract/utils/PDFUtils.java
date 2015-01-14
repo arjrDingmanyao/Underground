@@ -812,7 +812,7 @@ public class PDFUtils
       else
       {
         investor.loginName = new StringBuffer(user.getLoginName()).replace(1, user.getLoginName().length() - 1, "****").toString();
-        investor.name = new StringBuffer(user.getName()).replace(1, user.getName().length() - 1, "**").toString();
+        investor.name = new StringBuffer(user.getName()).replace(1, user.getName().length(), "**").toString();
         investor.idNumberPrivacy = new StringBuffer(user.getIdNumber()).replace(6, 14, "********").toString();
       }
       fields.investorList.add(investor);
