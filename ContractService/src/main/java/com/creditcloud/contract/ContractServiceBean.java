@@ -156,14 +156,13 @@ public class ContractServiceBean
             byte[] out = PDFUtils.claimTemplateToPdf(fields, template.getContent(), this.appBean.getWatermark());
 //            byte[] out = PDFUtils.templateToPdf(fields, template.getContent(), this.appBean.getWatermark());
             contract.setContent(out);
-            
-           
+
         } catch (IOException | DocumentException ex) {
             this.logger.error("Can't fullfil the template!", ex);
         }
         //为受让人增加一份合同
         this.contractDAO.addNew(contract);
-        
+
         //在为转让人添加一份合同，相当于是一式两份
         contract.setId(UUID.randomUUID().toString());
         contract.setEntity(new RealmEntity(Realm.INVEST, originalInvest.getId()));
@@ -171,7 +170,7 @@ public class ContractServiceBean
 
         this.logger.info("Contract generated.[contractId={}][contractName={}][time={}]", new Object[]{contract.getId(), contract.getName(), Long.valueOf(sw.getTime())});
     }
-    
+
     @Asynchronous
     public void testGenerateContract(Client client, Loan loan, String templateId, List<ContractSeal> seals) {
         StopWatch sw = new StopWatch();
@@ -586,9 +585,13 @@ public class ContractServiceBean
     public Contract getLoanContract(String clientCode, RealmEntity contractEntity, boolean withContent) {
         return getContractByEntityAndType(clientCode, contractEntity, withContent, ContractType.LOAN);
     }
-    
+
     public Contract getAssignContract(String clientCode, RealmEntity contractEntity, boolean withContent) {
         return getContractByEntityAndType(clientCode, contractEntity, withContent, ContractType.CREDITASSIGN);
+    }
+
+    public List<Contract> getAllAssignContract(String clientCode, RealmEntity contractEntity, boolean withContent) {
+        return getAllContractByEntityAndType(clientCode, contractEntity, withContent, ContractType.CREDITASSIGN);
     }
 
     protected List<Invest> filterInvest(List<Invest> investList) {
@@ -1294,6 +1297,36 @@ public class ContractServiceBean
             }
         }
         return result;
+    }
+
+    public List<Contract> getAllContractByEntityAndType(String clientCode, RealmEntity contractEntity, boolean withContent, ContractType contractType) {
+        this.appBean.checkClientCode(clientCode);
+        Contract result = null;
+        List<Contract> contractList = new ArrayList<>();
+        List<com.creditcloud.contract.entities.Contract> results = this.contractDAO.findByEntityAndType(clientCode, contractEntity, contractType);
+        if ((results != null) && (!results.isEmpty())) {
+            for (com.creditcloud.contract.entities.Contract entity : results) {
+                this.logger.debug("getContract {} time created: {}", entity.getId(), entity.getTimeCreated());
+
+                result = new Contract();
+                result.setId(entity.getId());
+                result.setClient(this.appBean.getClient());
+                result.setName(entity.getName());
+                result.setType(entity.getContractType());
+                result.setEntity(DTOUtils.getRealmEntity(entity.getRealmEntity()));
+                result.setTimeCreated(entity.getTimeCreated());
+                Map<ContractParty, User> users = new HashMap();
+                for (Map.Entry<ContractParty, String> entry : entity.getUserIdRelated().entrySet()) {
+                    users.put(entry.getKey(), this.userService.findByUserId(this.appBean.getClientCode(), (String) entry.getValue()));
+                }
+                result.setUserRelated(users);
+                if (withContent) {
+                    result.setContent(entity.getContent());
+                }
+                contractList.add(result);
+            }
+        }
+        return contractList;
     }
 
     @Asynchronous
