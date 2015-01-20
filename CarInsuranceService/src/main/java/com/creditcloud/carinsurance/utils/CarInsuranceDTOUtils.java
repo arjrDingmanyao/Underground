@@ -13,12 +13,7 @@ import com.creditcloud.carinsurance.model.CarInsuranceFeeModel;
 import com.creditcloud.carinsurance.model.CarInsuranceModel;
 import com.creditcloud.carinsurance.model.CarInsuranceRepaymentModel;
 import com.creditcloud.carinsurance.model.CarInsuranceRequestModel;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceDurationType;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceRequestStatus;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceType;
 import com.creditcloud.model.user.User;
-import java.math.BigDecimal;
 
 /**
  * DTO model和实体类之间的转换
@@ -52,8 +47,8 @@ public class CarInsuranceDTOUtils {
 		    carInsurance.getTitle(),
 		    carInsurance.getTotalAmount()
 	    );
-	}else{
-	  
+	} else {
+
 	}
 	return result;
 
@@ -139,7 +134,8 @@ public class CarInsuranceDTOUtils {
 		    repayment.getAmountPrincipal(),
 		    repayment.getStatus(),
 		    repayment.getRepayAmount(),
-		    repayment.getRepayDate());
+		    repayment.getRepayDate(),
+		    repayment.getOrderId());
 	}
 	return result;
     }
@@ -192,6 +188,7 @@ public class CarInsuranceDTOUtils {
 		    request.getAmount(),
 		    request.getRate(),
 		    request.getCarInsuranceType(),
+		    request.getCarInsurancePayStatus(),
 		    request.getFirstPayment(),
 		    request.getDuration(),
 		    request.getDurationType(),

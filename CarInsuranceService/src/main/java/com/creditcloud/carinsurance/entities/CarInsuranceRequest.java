@@ -1,6 +1,7 @@
 package com.creditcloud.carinsurance.entities;
 
 import com.creditcloud.carinsurance.model.enums.CarInsuranceDurationType;
+import com.creditcloud.carinsurance.model.enums.CarInsurancePayStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceRequestStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceType;
@@ -13,6 +14,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -29,6 +32,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "TB_CAR_INSURANCE_REQUEST")
+@NamedQueries({
+    @NamedQuery(name = "CarInsuranceRequest.findByNum", query = "select c from CarInsuranceRequest c where c.insuranceNum =:insuranceNum")}
+)
+
 public class CarInsuranceRequest extends UUIDEntity {
 
     /**
@@ -127,6 +134,15 @@ public class CarInsuranceRequest extends UUIDEntity {
     @Getter
     @Setter
     private CarInsuranceType carInsuranceType;
+
+    /**
+     * 支付状态
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Getter
+    @Setter
+    private CarInsurancePayStatus carInsurancePayStatus = CarInsurancePayStatus.NOTPAY;
 
     /**
      * 受理时间
