@@ -1393,9 +1393,4 @@ public class ContractServiceBean
 
         this.logger.info("Contract generated.[contractId={}][contractName={}][time={}]", new Object[]{contract.getId(), contract.getName(), Long.valueOf(sw.getTime())});
     }
-
-    @Override
-    public List<Contract> getAllAssignContract(String clientCode, RealmEntity entity, boolean withContent) {
-	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }
