@@ -275,9 +275,9 @@ public class PDFUtils
       fields.extendValues.put("loanDuration", (String)values.get("loanDuration"));
     }
     //增加转让信息
-    fields.originalAmount = invest.getAmount().toString();
-    fields.assignAmount = creditAssign.getCreditDealAmount().toString();
-    fields.assignFeeAmount = creditAssign.getFee().toString();
+    fields.originalAmount = ("人民币" + invest.getAmount().toString() + "元");
+    fields.assignAmount = ("人民币" + invest.getCreditAssignDealAmount().toString() + "元");
+    fields.assignFeeAmount = ("人民币" + creditAssign.getFee().toString() + "元");
     fields.assignDate = toPdfDateString(new Date());
     fields.assignPeriod = repaymentList.size() + "";
     Duration assignDuration = invest.getDuration();
@@ -812,7 +812,7 @@ public class PDFUtils
       else
       {
         investor.loginName = new StringBuffer(user.getLoginName()).replace(1, user.getLoginName().length() - 1, "****").toString();
-        investor.name = new StringBuffer(user.getName()).replace(1, user.getName().length() - 1, "*").toString();
+        investor.name = new StringBuffer(user.getName()).replace(1, user.getName().length(), "**").toString();
         investor.idNumberPrivacy = new StringBuffer(user.getIdNumber()).replace(6, 14, "********").toString();
       }
       fields.investorList.add(investor);

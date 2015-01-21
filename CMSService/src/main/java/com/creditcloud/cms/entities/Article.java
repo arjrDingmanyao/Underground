@@ -34,9 +34,9 @@ import lombok.NoArgsConstructor;
      * list
      */
     @NamedQuery(name = "Article.listByChannel",
-                query = "select a from Article a where a.channel.id = :id order by a.priority desc, a.timeRecorded desc"),
+                query = "select a from Article a where a.channel.id = :id order by a.priority desc, a.pubDate desc"),
     @NamedQuery(name = "Article.listByCategory",
-                query = "select a from Article a where a.category = :category order by a.priority desc, a.timeRecorded desc"),
+                query = "select a from Article a where a.category = :category order by a.priority desc, a.pubDate desc"),
     /**
      * count
      */
