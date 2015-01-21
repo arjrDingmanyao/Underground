@@ -25,7 +25,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 /**
  * 车险还款计划实体类
  *
@@ -45,6 +44,8 @@ import lombok.NoArgsConstructor;
 	    query = "select o from CarInsuranceRepayment o where o.dueDate between :from and :to and o.status in :statusList order by o.dueDate ASC"),
     @NamedQuery(name = "CarInsuranceRepayment.listCarInsuranceDueRepayByUser",
 	    query = "select o from CarInsuranceRepayment o where o.carInsurance.userId = :userId and o.dueDate between :from and :to and o.status in :statusList order by o.dueDate ASC"),
+    @NamedQuery(name = "CarInsuranceRepayment.findByOrderId",
+	    query = "select O from CarInsuranceRepayment O where O.orderId= :orderId"),
 
     @NamedQuery(name = "CarInsuranceRepayment.findById",
 	    query = "select c from CarInsuranceRepayment c where c.id =:id"),
@@ -102,6 +103,12 @@ public class CarInsuranceRepayment extends UUIDEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true)
     private Date repayDate;
+
+    /*
+     * 交易订单号, 对应汇付接口中的OrdId
+     */
+    @Column(nullable = true,unique = true)
+    private String orderId;
 
     public CarInsuranceRepayment(BigDecimal amountInterest, CarInsurance carInsurance, int currentPeriod, Date dueDate, BigDecimal amountPrincipal, CarInsuranceStatus status, BigDecimal repayAmount, Date repayDate) {
 	this.amountInterest = amountInterest;
