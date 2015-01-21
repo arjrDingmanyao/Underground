@@ -16,6 +16,7 @@ import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
 import com.creditcloud.model.user.User;
 import com.creditcloud.user.api.UserService;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -23,6 +24,15 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.slf4j.Logger;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Iterator;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
@@ -34,7 +44,7 @@ public class CarInsuranceFeeServiceBean implements CarInsuranceFeeService {
 
     @EJB
     ApplicationBean appBean;
-    
+
     @Inject
     Logger logger;
 
@@ -76,7 +86,7 @@ public class CarInsuranceFeeServiceBean implements CarInsuranceFeeService {
      */
     public CarInsuranceFeeModel findById(String id) {
 	CarInsuranceFee fee = carInsuranceFeeDAO.find(id);
-	
+
 	return CarInsuranceDTOUtils.convertCarInsuranceFeeDTO(fee);
 
     }
@@ -117,6 +127,40 @@ public class CarInsuranceFeeServiceBean implements CarInsuranceFeeService {
 	    logger.debug("save CarInsuranceFee success model:{}", model);
 	} else {
 	    logger.error("save CarInsuranceFee failure model:{}", model);
+	}
+
+    }
+
+    /**
+     * 批量更新手续费状态
+     *
+     * @param feeFileExcel
+     */
+    public void bacthUpdateCarInsuranceFeeSatatus(File feeFileExcel) {
+	try {
+	    FileInputStream file = new FileInputStream(feeFileExcel);
+	    XSSFWorkbook workbook = new XSSFWorkbook(file);
+	    XSSFSheet sheet = workbook.getSheetAt(0);
+	    Iterator<Row> rowIterator = sheet.iterator();
+	    while (rowIterator.hasNext()) {
+		Row row = rowIterator.next();
+		Iterator<Cell> cellIterator = row.cellIterator();
+		while (cellIterator.hasNext()) {
+		    Cell cell = cellIterator.next();
+		    switch (cell.getCellType()) {
+			case Cell.CELL_TYPE_NUMERIC:
+			    System.out.print(cell.getNumericCellValue() + "\t");
+			    break;
+			case Cell.CELL_TYPE_STRING:
+			    System.out.print(cell.getStringCellValue() + "\t");
+			    break;
+		    }
+		}
+		System.out.println("");
+	    }
+	    file.close();
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
 
     }

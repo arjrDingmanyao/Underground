@@ -12,6 +12,7 @@ import com.creditcloud.carinsurance.entities.dao.CarInsuranceDAO;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceRepaymentDAO;
 import com.creditcloud.carinsurance.local.ApplicationBean;
 import com.creditcloud.carinsurance.model.CarInsuranceModel;
+import com.creditcloud.carinsurance.model.CarInsuranceRepayDetail;
 import com.creditcloud.carinsurance.model.CarInsuranceRepaymentModel;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceDuration;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -55,6 +57,15 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 
     @EJB
     UserService userService;
+
+    /**
+     * 设置定时器
+     *
+     */
+    @Schedule(persistent = false, second = "1", minute = "*/1", hour = "*")
+    private void minuteUpdateCheckBrach() {
+	logger.debug("CarInsuranceServiceBean minuteUpdateCheckBrach.[time={}ms]", System.currentTimeMillis());
+    }
 
     /**
      * 根据车险分期的 时间和状态查询数据
@@ -125,7 +136,8 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	carInsurance = carInsuranceDAO.create(carInsurance);
 	BigDecimal first = carInsurance.getTotalAmount();
 	BigDecimal second = new BigDecimal(carInsurance.getDuration());
-	BigDecimal amountPrincipal = first.subtract(second);
+	//应该除法
+	BigDecimal amountPrincipal = first.divide(second);
 	logger.debug("create repayment carInsurance :\n{}", carInsurance);
 	for (int i = 1; i <= carInsurance.getDuration(); i++) {
 	    //计算出还款时间
@@ -232,6 +244,46 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    result.add(CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user));
 	}
 	return result;
+    }
+
+    /**
+     * 获取提前一次性还清 明细
+     *
+     * @param carInsuranceid
+     * @return
+     */
+    public CarInsuranceRepayDetail getCarInsuranceRepayDetailById(String carInsuranceid) {
+	CarInsurance carInsurance = carInsuranceDAO.find(carInsuranceid);
+	List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
+
+	/**
+	 * 统计未还期数
+	 *
+	 */
+	List<CarInsuranceRepaymentModel> repaymentModels = new ArrayList<>();
+
+	//计算出已还清的金额
+	BigDecimal repayedAmount = BigDecimal.ZERO;
+	for (CarInsuranceRepayment repayment : repayments) {
+	    logger.debug("{}还款状态{}", repayment.getCarInsurance().getTitle(), repayment.getStatus());
+	    if (repayment.getStatus() == CarInsuranceStatus.CLEARED) {
+		//只要未还清 则计算在内
+		repayedAmount = repayedAmount.add(repayment.getAmountPrincipal());
+	    } else {
+		//记录未还的期数
+		User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
+		repaymentModels.add(CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user));
+	    }
+	}
+	//计算应还本金 principal =  借款总额-已还金额
+	BigDecimal principal = carInsurance.getAmount().subtract(repayedAmount);
+	//计算提还违约金 提还违约金=应还本金*费率(0.2%)
+	BigDecimal penaltyRate = new BigDecimal(0.002);
+	BigDecimal penalty = principal.multiply(penaltyRate);
+
+	CarInsuranceRepayDetail repayDetail = new CarInsuranceRepayDetail(principal, repaymentModels, penalty);
+
+	return repayDetail;
     }
 
 }
