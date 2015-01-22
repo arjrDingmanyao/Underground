@@ -83,7 +83,7 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
     @Override
     public void edit(CarInsuranceRequestModel model) {
 	CarInsuranceRequest request = CarInsuranceDTOUtils.convertCarInsuranceRequest(model);
-	if (request.getId() != null) {
+	if (request != null) {
 	    logger.debug("edit CarInsuranceRequest success :\n {}", request);
 	    carInsuranceRequestDAO.edit(request);
 	} else {
@@ -98,7 +98,7 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
     @Override
     public void editByWebservice(CarInsuranceRequestModel model) {
 	CarInsuranceRequest request = carInsuranceRequestDAO.findByNum(model.getInsuranceNum());
-	if (request.getId() != null) {
+	if (request != null) {
 	    logger.debug("editByWebservice CarInsuranceRequest success :\n {}", request);
 	    //可以修改的字段
 	    request.setTitle(model.getTitle());
@@ -128,7 +128,7 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
     public boolean cancel(String insuranceNum) {
 	boolean bool = true;
 	CarInsuranceRequest request = carInsuranceRequestDAO.findByNum(insuranceNum);
-	if (request.getId() != null) {
+	if (request != null) {
 	    logger.debug("editByWebservice CarInsuranceRequest success :\n {}", request);
 	    //可以修改的字段
 	    request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.CANCELED);
@@ -150,7 +150,7 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
     public boolean confirm(String insuranceNum) {
 	boolean bool = true;
 	CarInsuranceRequest request = carInsuranceRequestDAO.findByNum(insuranceNum);
-	if (request.getId() != null) {
+	if (request != null) {
 	    logger.debug("editByWebservice CarInsuranceRequest success :\n {}", request);
 	    //可以修改的字段
 	    request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.COMFIRM);
@@ -235,14 +235,14 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
 		    request.getFirstPayment(),
 		    request.getDuration(),
 		    request.getDurationType(),
-		    CarInsuranceChagreBackType.UNASSIGNED,
+		    CarInsuranceChagreBackType.SUCESS,
 		    request.getAcceptanceDate(),
-		    CarInsuranceStatus.INITIATED,
+		    CarInsuranceStatus.PAYING,
 		    request.getTitle(),
 		    request.getTotalAmount());
 	    //创建一个车险分期，在创建车险分期的同时生成还款计划
 	    carInsuranceService.create(model);
-	    logger.debug("车险分期批准通过./n{}", model);
+	    logger.debug("车险分期批准通过.\n{}", model);
 	    //修改申请标的状态为已批准
 	    request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.APPROVED);
 	    carInsuranceRequestDAO.edit(request);
@@ -285,7 +285,7 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
     public boolean changePayStatus(String insuranceNum, CarInsurancePayStatus payStatus) {
 	boolean bool = true;
 	CarInsuranceRequest request = carInsuranceRequestDAO.findByNum(insuranceNum);
-	if (request.getId() != null) {
+	if (request != null) {
 	    logger.debug("payNotice CarInsuranceRequest success :\n {}", request);
 	    //可以修改的字段
 	    request.setCarInsurancePayStatus(payStatus);

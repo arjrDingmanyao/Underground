@@ -5,6 +5,7 @@
  */
 package com.creditcloud.carinsurance;
 
+import com.creditcloud.carinsurance.api.CarInsuranceRepaymentService;
 import com.creditcloud.carinsurance.api.CarInsuranceService;
 import com.creditcloud.carinsurance.entities.CarInsurance;
 import com.creditcloud.carinsurance.entities.CarInsuranceRepayment;
@@ -57,6 +58,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 
     @EJB
     UserService userService;
+
+    @EJB
+    CarInsuranceRepaymentService carInsuranceRepaymentService;
 
     /**
      * 设置定时器
@@ -134,10 +138,10 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	CarInsurance carInsurance = CarInsuranceDTOUtils.convertCarInsurance(model);
 	//1 根据分期类别 然后计算还款计划
 	carInsurance = carInsuranceDAO.create(carInsurance);
-	BigDecimal first = carInsurance.getTotalAmount();
-	BigDecimal second = new BigDecimal(carInsurance.getDuration());
-	//应该除法
-	BigDecimal amountPrincipal = first.divide(second);
+	BigDecimal firstValue = carInsurance.getAmount();
+	BigDecimal secondValue = new BigDecimal(carInsurance.getDuration());
+	//应该除法 防止出现无限小数 保留2位小数
+	BigDecimal amountPrincipal = firstValue.divide(secondValue, 2);
 	logger.debug("create repayment carInsurance :\n{}", carInsurance);
 	for (int i = 1; i <= carInsurance.getDuration(); i++) {
 	    //计算出还款时间
@@ -155,6 +159,34 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    carInsuranceRepaymentDAO.create(repayment);
 	}
 
+    }
+
+    public boolean advanceRepayAll(String id) {
+	Boolean bool = false;
+	//1 修改车险还款为已还清
+	CarInsurance carInsurance = carInsuranceDAO.find(id);
+	//2 修改该分期所有的还款计划为已还清 并添加费用
+	if (carInsurance != null && carInsurance.getCarInsuranceStatus().equals("PAYING")) {
+	    List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
+	    for (CarInsuranceRepayment repayment : repayments) {
+		switch (repayment.getStatus()) {
+		    case PAYING:
+			//判断如果是还款中的状态才可以还款
+			carInsuranceRepaymentService.repay(repayment.getId());
+			break;
+		    case CANCELED:
+			logger.debug("该车险还款计划已还清repayment: {}", repayment);
+			break;
+		    default:
+		    //nothing
+		}
+
+	    }
+	    bool = true;
+	} else {
+	    logger.debug("该车险分期不存在或者已还清 {}", id);
+	}
+	return bool;
     }
 
     //############################ market使用 ################################
@@ -255,7 +287,6 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     public CarInsuranceRepayDetail getCarInsuranceRepayDetailById(String carInsuranceid) {
 	CarInsurance carInsurance = carInsuranceDAO.find(carInsuranceid);
 	List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
-
 	/**
 	 * 统计未还期数
 	 *
@@ -266,13 +297,13 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	BigDecimal repayedAmount = BigDecimal.ZERO;
 	for (CarInsuranceRepayment repayment : repayments) {
 	    logger.debug("{}还款状态{}", repayment.getCarInsurance().getTitle(), repayment.getStatus());
-	    if (repayment.getStatus() == CarInsuranceStatus.CLEARED) {
-		//只要未还清 则计算在内
-		repayedAmount = repayedAmount.add(repayment.getAmountPrincipal());
-	    } else {
-		//记录未还的期数
+	    if (repayment.getStatus() == CarInsuranceStatus.PAYING) {
+		//统计正在还款的
 		User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 		repaymentModels.add(CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user));
+	    } else if (repayment.getStatus() == CarInsuranceStatus.CLEARED) {
+		//统计已还清的金额
+		repayedAmount = repayedAmount.add(repayment.getAmountPrincipal());
 	    }
 	}
 	//计算应还本金 principal =  借款总额-已还金额
