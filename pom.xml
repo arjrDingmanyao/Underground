@@ -35,6 +35,6 @@
 	<module>ContractService</module>
 	<module>PaymentService</module>
 	<module>CarInsuranceService</module>
-    </modules>
+    <module>ConfigService</module>
+  </modules>
 </project>
-
