@@ -19,6 +19,7 @@ import com.creditcloud.carinsurance.model.enums.CarInsuranceRequestStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceType;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
+import com.creditcloud.client.api.EmployeeService;
 import com.creditcloud.model.client.Employee;
 import com.creditcloud.model.constant.EmailConstant;
 import com.creditcloud.model.criteria.PageInfo;
@@ -59,6 +60,9 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
 
     @EJB
     private CarInsuranceService carInsuranceService;
+
+    @EJB
+    private EmployeeService employeeService;
 
     /**
      * 保存
@@ -155,6 +159,16 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
 	    //可以修改的字段
 	    request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.COMFIRM);
 	    carInsuranceRequestDAO.edit(request);
+	    //首先得获取到用户employee admin的Id
+	    String empId = "E91D1392-61AC-403F-8DFC-A4E32F9E32CF";
+	    Employee employee = employeeService.findById(appBean.getClientCode(), empId);
+	    if (employee != null) {
+		//接受车险分期确认,创建用户和生成还款计划
+		bool = approve(employee, insuranceNum);
+	    } else {
+		logger.error("when car insurance approve,employee not exist  empID:{}", empId);
+		bool = false;
+	    }
 	} else {
 	    logger.error("edit CarInsuranceRequest failure insuranceNum :{}", insuranceNum);
 	    bool = false;
