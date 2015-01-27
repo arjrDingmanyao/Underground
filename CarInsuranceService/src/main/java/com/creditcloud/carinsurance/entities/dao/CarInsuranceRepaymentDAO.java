@@ -176,14 +176,31 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
 
     /**
      * 根据车险分期 获取该还款计划
+     *
      * @param carInsurance
-     * @return 
+     * @return
      */
     public List<CarInsuranceRepayment> listByCarInsurance(CarInsurance carInsurance) {
 	Query query = getEntityManager()
 		.createNamedQuery("CarInsuranceRepayment.listCarInsuranceByCarInsurance", CarInsuranceRepayment.class)
 		.setParameter("carInsurance", carInsurance);
 	return query.getResultList();
+    }
+
+    /**
+     * 根据订单id获取
+     *
+     * @param orderId
+     * @return
+     */
+    public CarInsuranceRepayment findByOrderId(String orderId) {
+	CarInsuranceRepayment result = null;
+	logger.debug("findByOrderId ：{}", orderId);
+	result = getEntityManager()
+		.createNamedQuery("CarInsuranceRepayment.findByOrderId", CarInsuranceRepayment.class)
+		.setParameter("orderId", orderId)
+		.getSingleResult();
+	return result;
     }
 
 }

@@ -37,22 +37,22 @@ import org.slf4j.Logger;
 @Remote
 @Stateless
 public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentService {
-
+    
     @Inject
     Logger logger;
-
+    
     @EJB
     ApplicationBean appBean;
-
+    
     @EJB
     private CarInsuranceRepaymentDAO carInsuranceRepaymentDAO;
-
+    
     @EJB
     private CarInsuranceDAO carInsuranceDAO;
-
+    
     @EJB
     private CarInsuranceFeeDAO carInsuranceFeeDAO;
-
+    
     @EJB
     UserService userService;
 
@@ -77,7 +77,8 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 		    repayment.getAmountPrincipal(),
 		    repayment.getStatus(),
 		    repayment.getRepayAmount(),
-		    repayment.getRepayDate());
+		    repayment.getRepayDate(),
+		    repayment.getOrderId());
 	    list.add(crm);
 	}
 	return list;
@@ -118,6 +119,18 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
     }
 
     @Override
+    public void updateCarInsuranceRepaymentModelFoyOrderId(CarInsuranceRepaymentModel model) {
+	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findById(model.getId());
+	if (repayment != null) {
+	    repayment.setOrderId(model.getOrderId());
+	    //更新orderId
+	    carInsuranceRepaymentDAO.edit(repayment);
+	} else {
+	    logger.debug("车险分期还款失败 CarInsuranceRepayment not exist or deleted \n CarInsuranceRepaymentID:{}", model.getId());
+	}
+    }
+    
+    @Override
     public void repay(String repaymentId) {
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findById(repaymentId);
 	/**
@@ -132,7 +145,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    repayment.setRepayAmount(repayment.getAmountPrincipal());
 	    repayment.setStatus(CarInsuranceStatus.CLEARED);
 	    carInsuranceRepaymentDAO.edit(repayment);
-
+	    
 	    CarInsurance temp = repayment.getCarInsurance();
 	    //2 判断是否是最后一期
 	    switch (temp.getDurationType()) {
@@ -142,7 +155,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 			//修改车险主信息为已还清
 			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
 			carInsuranceDAO.edit(temp);
-		    }else{
+		    } else {
 			temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
 			carInsuranceDAO.edit(temp);
 		    }
@@ -153,7 +166,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 			//修改车险主信息为已还清
 			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
 			carInsuranceDAO.edit(temp);
-		    }else{
+		    } else {
 			temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
 			carInsuranceDAO.edit(temp);
 		    }
@@ -164,7 +177,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 			//修改车险主信息为已还清
 			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
 			carInsuranceDAO.edit(temp);
-		    }else{
+		    } else {
 			temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
 			carInsuranceDAO.edit(temp);
 		    }
@@ -180,7 +193,24 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    fee.setCarInsuranceRepayment(repayment);
 	    carInsuranceFeeDAO.create(fee);
 	}
-
+	
     }
 
+    /**
+     * 根据orderID获取
+     *
+     * @param orderId
+     * @return
+     */
+    @Override
+    public CarInsuranceRepaymentModel getCarInsuranceRepaymentModelByOrderId(String orderId) {
+	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findByOrderId(orderId);
+	CarInsuranceRepaymentModel model = null;
+	if (repayment != null) {
+	    User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
+	    model = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
+	}
+	return model;
+    }
+    
 }
