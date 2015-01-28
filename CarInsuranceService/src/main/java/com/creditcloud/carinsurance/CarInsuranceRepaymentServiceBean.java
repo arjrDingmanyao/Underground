@@ -17,16 +17,21 @@ import com.creditcloud.carinsurance.model.CarInsuranceModel;
 import com.creditcloud.carinsurance.model.CarInsuranceRepaymentModel;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
+import com.creditcloud.model.criteria.PageInfo;
+import com.creditcloud.model.enums.loan.RepaymentStatus;
+import com.creditcloud.model.misc.PagedResult;
 import com.creditcloud.model.user.User;
 import com.creditcloud.user.api.UserService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 
 /**
@@ -37,22 +42,22 @@ import org.slf4j.Logger;
 @Remote
 @Stateless
 public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentService {
-    
+
     @Inject
     Logger logger;
-    
+
     @EJB
     ApplicationBean appBean;
-    
+
     @EJB
     private CarInsuranceRepaymentDAO carInsuranceRepaymentDAO;
-    
+
     @EJB
     private CarInsuranceDAO carInsuranceDAO;
-    
+
     @EJB
     private CarInsuranceFeeDAO carInsuranceFeeDAO;
-    
+
     @EJB
     UserService userService;
 
@@ -129,7 +134,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    logger.debug("车险分期还款失败 CarInsuranceRepayment not exist or deleted \n CarInsuranceRepaymentID:{}", model.getId());
 	}
     }
-    
+
     @Override
     public void repay(String repaymentId) {
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findById(repaymentId);
@@ -145,7 +150,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    repayment.setRepayAmount(repayment.getAmountPrincipal());
 	    repayment.setStatus(CarInsuranceStatus.CLEARED);
 	    carInsuranceRepaymentDAO.edit(repayment);
-	    
+
 	    CarInsurance temp = repayment.getCarInsurance();
 	    //2 判断是否是最后一期
 	    switch (temp.getDurationType()) {
@@ -193,7 +198,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    fee.setCarInsuranceRepayment(repayment);
 	    carInsuranceFeeDAO.create(fee);
 	}
-	
+
     }
 
     /**
@@ -212,5 +217,39 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	}
 	return model;
     }
+
+    /**
+     * 或去逾期的还款
+     *
+     * @param clientCode
+     * @param from
+     * @param to
+     * @param pageInfo
+     * @param status
+     * @return
+     */
+    @Override
+    public PagedResult<CarInsuranceRepaymentModel> listDueRepay(String clientCode, LocalDate from, LocalDate to, PageInfo pageInfo, CarInsuranceStatus... status) {
+	appBean.checkClientCode(clientCode);
+	logger.debug("listDueRepay.[clientCode={}][from={}][to={}][pageInfo={}][status={}]", clientCode, from, to, pageInfo, Arrays.asList(status));
+	PagedResult<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listDueRepay(from, to, pageInfo, status);
+	List<CarInsuranceRepaymentModel> result = new ArrayList<>(repayments.getResults().size());
+	for (CarInsuranceRepayment repayment : repayments.getResults()) {
+	    User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
+	    CarInsuranceRepaymentModel model = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
+	    result.add(model);
+	}
+	return new PagedResult<>(result, repayments.getTotalSize());
+    }
     
+    
+    @Override
+    public boolean markStatus(String clientCode, CarInsuranceStatus status, String... repayIds) {
+        appBean.checkClientCode(clientCode);
+        //更新loanRepayment
+        carInsuranceRepaymentDAO.markStatus(status, repayIds);
+	//这里如果逾期也同时要修改车险费逾期
+        return true;
+    }
+
 }
