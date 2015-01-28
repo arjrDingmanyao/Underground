@@ -62,14 +62,6 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     @EJB
     CarInsuranceRepaymentService carInsuranceRepaymentService;
 
-    /**
-     * 设置定时器
-     *
-     */
-    @Schedule(persistent = false, second = "1", minute = "*/1", hour = "*")
-    private void minuteUpdateCheckBrach() {
-	logger.debug("CarInsuranceServiceBean minuteUpdateCheckBrach.[time={}ms]", System.currentTimeMillis());
-    }
 
     /**
      * 根据车险分期的 时间和状态查询数据

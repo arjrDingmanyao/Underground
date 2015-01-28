@@ -25,6 +25,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 /**
  * 车险还款计划实体类
  *
@@ -52,7 +53,20 @@ import lombok.NoArgsConstructor;
     @NamedQuery(name = "CarInsuranceRepayment.countCarInsuranceDueRepay",
 	    query = "select count(o) from CarInsuranceRepayment o where o.dueDate between :from and :to and o.status in :statusList"),
     @NamedQuery(name = "CarInsuranceRepayment.countCarInsuranceDueRepayByUser",
-	    query = "select count(o) from CarInsuranceRepayment o where o.carInsurance.userId = :userId and o.dueDate between :from and :to and o.status in :statusList"),})
+	    query = "select count(o) from CarInsuranceRepayment o where o.carInsurance.userId = :userId and o.dueDate between :from and :to and o.status in :statusList"),
+
+    /**
+     * update
+     */
+    @NamedQuery(name = "CarInsuranceRepayment.markStatus",
+	    query = "update CarInsuranceRepayment o set o.status = :status where o.id in :ids"),
+    /**
+     * 逾期
+     */
+    @NamedQuery(name = "CarInsuranceRepayment.listDueRepay",
+	    query = "select o from CarInsuranceRepayment o where o.dueDate between :from and :to and o.status in :statusList order by o.dueDate ASC"),
+    @NamedQuery(name = "CarInsuranceRepayment.countDueRepay",
+	    query = "select count(o) from CarInsuranceRepayment o where o.dueDate between :from and :to and o.status in :statusList"),})
 public class CarInsuranceRepayment extends UUIDEntity {
 
     @ManyToOne
@@ -107,7 +121,7 @@ public class CarInsuranceRepayment extends UUIDEntity {
     /*
      * 交易订单号, 对应汇付接口中的OrdId
      */
-    @Column(nullable = true,unique = true)
+    @Column(nullable = true, unique = true)
     private String orderId;
 
     public CarInsuranceRepayment(BigDecimal amountInterest, CarInsurance carInsurance, int currentPeriod, Date dueDate, BigDecimal amountPrincipal, CarInsuranceStatus status, BigDecimal repayAmount, Date repayDate) {

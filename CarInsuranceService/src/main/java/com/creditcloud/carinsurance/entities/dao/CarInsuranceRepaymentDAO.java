@@ -7,6 +7,7 @@ package com.creditcloud.carinsurance.entities.dao;
  */
 import com.creditcloud.carinsurance.entities.CarInsurance;
 import com.creditcloud.carinsurance.entities.CarInsuranceRepayment;
+import com.creditcloud.carinsurance.local.ApplicationBean;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.common.entities.dao.AbstractDAO;
 import com.creditcloud.model.criteria.PageInfo;
@@ -15,12 +16,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 
 /**
@@ -33,6 +36,9 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
 
     @Inject
     Logger logger;
+
+    @EJB
+    ApplicationBean appBean;
 
     @PersistenceContext(unitName = "ManagerPU")
     private EntityManager em;
@@ -201,6 +207,71 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
 		.setParameter("orderId", orderId)
 		.getSingleResult();
 	return result;
+    }
+
+    /**
+     * 按时间区间和还款状态列出一段时间内所有到期的CarInsuranceRepayment
+     *
+     * @param from
+     * @param to
+     * @param status
+     * @return
+     */
+    public PagedResult<CarInsuranceRepayment> listDueRepay(LocalDate from, LocalDate to, PageInfo info, CarInsuranceStatus... status) {
+	if (status == null || status.length == 0) {
+	    return new PagedResult<>(Collections.EMPTY_LIST, 0);
+	}
+	Query query = getEntityManager()
+		.createNamedQuery("CarInsuranceRepayment.listDueRepay", CarInsuranceRepayment.class)
+		.setParameter("from", from)
+		.setParameter("to", to)
+		.setParameter("statusList", Arrays.asList(status));
+
+	query.setFirstResult(info.getOffset());
+	query.setMaxResults(info.getSize());
+
+	int totalSize = countDueRepay(from, to, status);
+	return new PagedResult(query.getResultList(), totalSize);
+    }
+
+    /**
+     * 按时间区间和还款状态统计一段时间内所有到期的CarInsuranceRepayment
+     *
+     * @param from
+     * @param to
+     * @param status
+     * @return
+     */
+    int countDueRepay(LocalDate from, LocalDate to, CarInsuranceStatus... status) {
+	if (status == null || status.length == 0) {
+	    return 0;
+	}
+	Long result = getEntityManager()
+		.createNamedQuery("CarInsuranceRepayment.countDueRepay", Long.class)
+		.setParameter("from", from)
+		.setParameter("to", to)
+		.setParameter("statusList", Arrays.asList(status))
+		.getSingleResult();
+	return result == null ? 0 : result.intValue();
+    }
+
+    /**
+     * update loan status
+     *
+     * @param status
+     * @param ids
+     * @return
+     */
+    public boolean markStatus(CarInsuranceStatus status, String... ids) {
+	if (ids == null || ids.length == 0) {
+	    return false;
+	}
+	int result = getEntityManager()
+		.createNamedQuery("CarInsuranceRepayment.markStatus")
+		.setParameter("status", status)
+		.setParameter("ids", Arrays.asList(ids))
+		.executeUpdate();
+	return result > 0;
     }
 
 }
