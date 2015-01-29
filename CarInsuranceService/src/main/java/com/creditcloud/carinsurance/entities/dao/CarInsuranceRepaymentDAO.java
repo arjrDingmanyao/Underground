@@ -217,7 +217,7 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
      * @param status
      * @return
      */
-    public PagedResult<CarInsuranceRepayment> listDueRepay(LocalDate from, LocalDate to, PageInfo info, CarInsuranceStatus... status) {
+    public PagedResult<CarInsuranceRepayment> listDueRepay(Date from, Date to, PageInfo info, CarInsuranceStatus... status) {
 	if (status == null || status.length == 0) {
 	    return new PagedResult<>(Collections.EMPTY_LIST, 0);
 	}
@@ -242,7 +242,7 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
      * @param status
      * @return
      */
-    int countDueRepay(LocalDate from, LocalDate to, CarInsuranceStatus... status) {
+    int countDueRepay(Date from, Date to, CarInsuranceStatus... status) {
 	if (status == null || status.length == 0) {
 	    return 0;
 	}
