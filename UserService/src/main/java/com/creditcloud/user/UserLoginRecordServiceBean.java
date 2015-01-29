@@ -44,13 +44,16 @@ public class UserLoginRecordServiceBean implements UserLoginRecordService {
     UserDAO userDAO;
 
     @Override
-    public List<com.creditcloud.model.user.User> listByLoginDate(String clientCode, Date from, Date to, PageInfo pageInfo) {
+    public List<com.creditcloud.model.user.UserLoginRecord> listByLoginDate(String clientCode, Date from, Date to, PageInfo pageInfo) {
 
 	PagedResult<UserLoginRecord> records = loginRecordDAO.listByLoginDateRange(from, to, PageInfo.ALL);
 	List<com.creditcloud.model.user.User> users = new ArrayList<com.creditcloud.model.user.User>();
+	List<com.creditcloud.model.user.UserLoginRecord> loginRecords = new ArrayList<>();
 	for (UserLoginRecord record : records.getResults()) {
-	    users.add(DTOUtils.getUserDTO(record.getUser()));
+
+	    loginRecords.add(DTOUtils.getUserLoginRecord(record));
+//	    users.add(DTOUtils.getUserDTO(record.getUser()));
 	}
-	return users;
+	return loginRecords;
     }
 }
