@@ -18,7 +18,6 @@ import com.creditcloud.carinsurance.model.CarInsuranceRepaymentModel;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
 import com.creditcloud.model.criteria.PageInfo;
-import com.creditcloud.model.enums.loan.RepaymentStatus;
 import com.creditcloud.model.misc.PagedResult;
 import com.creditcloud.model.user.User;
 import com.creditcloud.user.api.UserService;
@@ -232,7 +231,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
     public PagedResult<CarInsuranceRepaymentModel> listDueRepay(String clientCode, LocalDate from, LocalDate to, PageInfo pageInfo, CarInsuranceStatus... status) {
 	appBean.checkClientCode(clientCode);
 	logger.debug("listDueRepay.[clientCode={}][from={}][to={}][pageInfo={}][status={}]", clientCode, from, to, pageInfo, Arrays.asList(status));
-	PagedResult<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listDueRepay(from, to, pageInfo, status);
+	PagedResult<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listDueRepay(from.toDate(), to.toDate(), pageInfo, status);
 	List<CarInsuranceRepaymentModel> result = new ArrayList<>(repayments.getResults().size());
 	for (CarInsuranceRepayment repayment : repayments.getResults()) {
 	    User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
