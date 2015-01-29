@@ -787,4 +787,5 @@ public class UserServiceBean implements UserService {
         appBean.checkClientCode(clientCode);
         return DTOUtils.getSocialUser(socialUserDAO.listByUserId(userId));
     }
+    
 }
