@@ -41,7 +41,7 @@ import javax.validation.Valid;
 	    query = "select cast(ulr.record.loginTime as date) as d, count(distinct(ulr.user)) from UserLoginRecord ulr where ulr.record.success = true and ulr.record.loginTime between :from and :to group by d order by d"),
     //用户登录统计
     @NamedQuery(name = "UserLoginRecord.listByLoginDateRange",
-	    query = "select ulr from UserLoginRecord ulr where ulr.record.success = true and ulr.record.loginTime between :from and :to group by ulr.record.credential order by ulr.record.loginTime"),
+	    query = "select cast(ulr.record.loginTime as date) as d,max(ulr.record.loginTime),ulr from UserLoginRecord ulr where ulr.record.success = true and ulr.record.loginTime between :from and :to group by d,ulr.record.credential order by ulr.record.loginTime"),
     @NamedQuery(name = "UserLoginRecord.countByLoginDateRange",
 	    query = "select count(ulr) from UserLoginRecord ulr where ulr.record.success = true and ulr.record.loginTime between :from and :to order by ulr.record.loginTime")
 })
