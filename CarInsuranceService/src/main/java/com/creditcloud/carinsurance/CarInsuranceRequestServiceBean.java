@@ -154,7 +154,10 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
     public boolean confirm(String insuranceNum) {
 	boolean bool = true;
 	CarInsuranceRequest request = carInsuranceRequestDAO.findByNum(insuranceNum);
-	if (request != null) {
+	//没有确认的状态和支付成功才可以投保
+	if (request != null
+		&& request.getCarInsuranceRequestStatus() != CarInsuranceRequestStatus.COMFIRM
+		&& request.getCarInsurancePayStatus() == CarInsurancePayStatus.PAYSUCCESS) {
 	    logger.debug("editByWebservice CarInsuranceRequest success :\n {}", request);
 	    //可以修改的字段
 	    request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.COMFIRM);
