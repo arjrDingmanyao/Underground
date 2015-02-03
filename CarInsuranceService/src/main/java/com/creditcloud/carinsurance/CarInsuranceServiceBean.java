@@ -43,25 +43,24 @@ import org.slf4j.Logger;
 @Remote
 @Stateless
 public class CarInsuranceServiceBean implements CarInsuranceService {
-
+    
     @Inject
     Logger logger;
-
+    
     @EJB
     ApplicationBean appBean;
-
+    
     @EJB
     private CarInsuranceDAO carInsuranceDAO;
-
+    
     @EJB
     private CarInsuranceRepaymentDAO carInsuranceRepaymentDAO;
-
+    
     @EJB
     UserService userService;
-
+    
     @EJB
     CarInsuranceRepaymentService carInsuranceRepaymentService;
-
 
     /**
      * 根据车险分期的 时间和状态查询数据
@@ -80,7 +79,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 		new Date(),
 		PageInfo.ALL,
 		carInsuranceStatus).getResults();
-
+	
 	List<CarInsuranceModel> carInsuranceModelRequests = new ArrayList<>();
 	for (CarInsurance request : list) {
 	    CarInsuranceModel model = CarInsuranceDTOUtils.convertCarInsuranceDTO(request, userService.findByUserId(this.appBean.getClientCode(), request.getUserId()));
@@ -114,7 +113,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	CarInsurance carInsurance = CarInsuranceDTOUtils.convertCarInsurance(model);
 	carInsuranceDAO.edit(carInsurance);
     }
-
+    
     @Override
     public CarInsuranceModel getByCarInsuranceModelById(String clientCode, String Id) {
 	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -128,7 +127,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     @Override
     public void create(CarInsuranceModel model) {
 	CarInsurance carInsurance = CarInsuranceDTOUtils.convertCarInsurance(model);
+
 	//1 根据分期类别 然后计算还款计划
+	carInsurance.setTimeRecord(new Date());
 	carInsurance = carInsuranceDAO.create(carInsurance);
 	BigDecimal firstValue = carInsurance.getAmount();
 	BigDecimal secondValue = new BigDecimal(carInsurance.getDuration());
@@ -150,9 +151,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    //保存到数据库
 	    carInsuranceRepaymentDAO.create(repayment);
 	}
-
+	
     }
-
+    
     public boolean advanceRepayAll(String id) {
 	Boolean bool = false;
 	//1 修改车险还款为已还清
@@ -172,7 +173,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 		    default:
 		    //nothing
 		}
-
+		
 	    }
 	    bool = true;
 	} else {
@@ -191,9 +192,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    User user = userService.findByUserId(appBean.getClientCode(), carInsurance.getUserId());
 	    lists.add(CarInsuranceDTOUtils.convertCarInsuranceDTO(carInsurance, user));
 	}
-
+	
 	return new PagedResult<>(lists, pagedResult.getTotalSize());
-
+	
     }
 
     /**
@@ -243,11 +244,11 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
      */
     @Override
     public CarInsuranceRepaymentModel listCarInsuranceRepaymentById(String id) {
-
+	
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.find(id);
 	User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 	CarInsuranceRepaymentModel model = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
-
+	
 	return model;
     }
 
@@ -303,10 +304,10 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	//计算提还违约金 提还违约金=应还本金*费率(0.2%)
 	BigDecimal penaltyRate = new BigDecimal(0.002);
 	BigDecimal penalty = principal.multiply(penaltyRate);
-
+	
 	CarInsuranceRepayDetail repayDetail = new CarInsuranceRepayDetail(principal, repaymentModels, penalty);
-
+	
 	return repayDetail;
     }
-
+    
 }
