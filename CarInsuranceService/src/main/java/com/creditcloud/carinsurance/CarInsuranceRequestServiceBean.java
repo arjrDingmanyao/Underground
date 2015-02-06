@@ -253,7 +253,7 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
 		    user.getMobile(),
 		    request.getAmount(),
 		    request.getRate(),
-		    CarInsuranceType.PERIOD,
+		    request.getCarInsuranceType(),
 		    request.getFirstPayment(),
 		    request.getDuration(),
 		    request.getDurationType(),

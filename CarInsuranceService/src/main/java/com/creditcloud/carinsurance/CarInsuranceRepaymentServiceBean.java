@@ -16,7 +16,9 @@ import com.creditcloud.carinsurance.local.ApplicationBean;
 import com.creditcloud.carinsurance.model.CarInsuranceModel;
 import com.creditcloud.carinsurance.model.CarInsuranceRepaymentModel;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
+import com.creditcloud.carinsurance.model.results.RepayCarInsuranceResult;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
+import com.creditcloud.config.api.ConfigManager;
 import com.creditcloud.model.criteria.PageInfo;
 import com.creditcloud.model.misc.PagedResult;
 import com.creditcloud.model.user.User;
@@ -59,6 +61,9 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 
     @EJB
     UserService userService;
+
+    @EJB
+    private ConfigManager configManager;
 
     /**
      *
@@ -135,12 +140,14 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
     }
 
     @Override
-    public void repay(String repaymentId) {
+    public RepayCarInsuranceResult repay(String repaymentId) {
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findById(repaymentId);
 	/**
 	 * @ feeAmount 每一期的分期手续费
 	 * @ 分期手续费的计算方式，分期总额*0.8%/每期
 	 */
+	boolean islast = false;
+	String insuranceNum = "";
 	BigDecimal feeAmount = new BigDecimal(0);
 	if (repayment != null) {
 	    repayment.setRepayAmount(repayment.getAmountPrincipal());
@@ -151,11 +158,13 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    carInsuranceRepaymentDAO.edit(repayment);
 
 	    CarInsurance temp = repayment.getCarInsurance();
+	    insuranceNum = temp.getInsuranceNum();
 	    //2 判断是否是最后一期
 	    switch (temp.getDurationType()) {
 		case THREEMONTH:
-		    feeAmount = (temp.getAmount().multiply(new BigDecimal(0.008))).divide(new BigDecimal(3), 10, BigDecimal.ROUND_HALF_UP);
+		    feeAmount = (temp.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getThreemonth()))).divide(new BigDecimal(3), 10, BigDecimal.ROUND_HALF_UP);
 		    if (repayment.getCurrentPeriod() == 3) {
+			islast = true;
 			//修改车险主信息为已还清
 			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
 			carInsuranceDAO.edit(temp);
@@ -165,8 +174,9 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 		    }
 		    break;
 		case SIXMONTH:
-		    feeAmount = (temp.getAmount().multiply(new BigDecimal(0.007))).divide(new BigDecimal(3), 10, BigDecimal.ROUND_HALF_DOWN);
+		    feeAmount = (temp.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getSixmonth()))).divide(new BigDecimal(6), 10, BigDecimal.ROUND_HALF_DOWN);
 		    if (repayment.getCurrentPeriod() == 6) {
+			islast = true;
 			//修改车险主信息为已还清
 			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
 			carInsuranceDAO.edit(temp);
@@ -176,8 +186,9 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 		    }
 		    break;
 		case TENMONTH:
-		    feeAmount = (temp.getAmount().multiply(new BigDecimal(0.006))).divide(new BigDecimal(3), 10, BigDecimal.ROUND_HALF_DOWN);
+		    feeAmount = (temp.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getTenmonth()))).divide(new BigDecimal(10), 10, BigDecimal.ROUND_HALF_DOWN);
 		    if (repayment.getCurrentPeriod() == 10) {
+			islast = true;
 			//修改车险主信息为已还清
 			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
 			carInsuranceDAO.edit(temp);
@@ -197,7 +208,9 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    fee.setCarInsuranceRepayment(repayment);
 	    carInsuranceFeeDAO.create(fee);
 	}
-
+	User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
+	CarInsuranceRepaymentModel repaymentModel = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
+	return new RepayCarInsuranceResult(islast, insuranceNum, repaymentModel);
     }
 
     /**
@@ -240,15 +253,14 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	}
 	return new PagedResult<>(result, repayments.getTotalSize());
     }
-    
-    
+
     @Override
     public boolean markStatus(String clientCode, CarInsuranceStatus status, String... repayIds) {
-        appBean.checkClientCode(clientCode);
-        //更新loanRepayment
-        carInsuranceRepaymentDAO.markStatus(status, repayIds);
+	appBean.checkClientCode(clientCode);
+	//更新loanRepayment
+	carInsuranceRepaymentDAO.markStatus(status, repayIds);
 	//这里如果逾期也同时要修改车险费逾期
-        return true;
+	return true;
     }
 
 }
