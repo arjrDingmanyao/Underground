@@ -20,6 +20,7 @@ import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceType;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
 import com.creditcloud.client.api.EmployeeService;
+import com.creditcloud.config.api.ConfigManager;
 import com.creditcloud.model.client.Employee;
 import com.creditcloud.model.constant.EmailConstant;
 import com.creditcloud.model.criteria.PageInfo;
@@ -63,6 +64,9 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
 
     @EJB
     private EmployeeService employeeService;
+
+    @EJB
+    private ConfigManager configManager;
 
     /**
      * 保存
@@ -154,17 +158,21 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
     public boolean confirm(String insuranceNum) {
 	boolean bool = true;
 	CarInsuranceRequest request = carInsuranceRequestDAO.findByNum(insuranceNum);
-	if (request != null) {
+	logger.debug("CarInsuranceRequest  request confirm#####{}", request);
+	//没有确认的状态和支付成功才可以投保
+	if (request != null
+		&& request.getCarInsuranceRequestStatus() != CarInsuranceRequestStatus.COMFIRM
+		&& request.getCarInsurancePayStatus() == CarInsurancePayStatus.PAYSUCCESS) {
 	    logger.debug("editByWebservice CarInsuranceRequest success :\n {}", request);
-	    //可以修改的字段
-	    request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.COMFIRM);
-	    carInsuranceRequestDAO.edit(request);
 	    //首先得获取到用户employee admin的Id
-	    String empId = "E91D1392-61AC-403F-8DFC-A4E32F9E32CF";
+	    String empId = configManager.getCarInsuranceConfig().getEmpployeeId();
 	    Employee employee = employeeService.findById(appBean.getClientCode(), empId);
 	    if (employee != null) {
 		//接受车险分期确认,创建用户和生成还款计划
-		bool = approve(employee, insuranceNum);
+		bool = approve(employee, request.getId());
+		//如果创建用户成功修改状态为已确认
+		request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.COMFIRM);
+		carInsuranceRequestDAO.edit(request);
 	    } else {
 		logger.error("when car insurance approve,employee not exist  empID:{}", empId);
 		bool = false;
@@ -245,7 +253,7 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
 		    user.getMobile(),
 		    request.getAmount(),
 		    request.getRate(),
-		    CarInsuranceType.PERIOD,
+		    request.getCarInsuranceType(),
 		    request.getFirstPayment(),
 		    request.getDuration(),
 		    request.getDurationType(),

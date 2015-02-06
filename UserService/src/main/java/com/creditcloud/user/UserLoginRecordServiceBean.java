@@ -8,7 +8,6 @@ package com.creditcloud.user;
 import com.creditcloud.model.criteria.PageInfo;
 import com.creditcloud.model.misc.PagedResult;
 import com.creditcloud.user.api.UserLoginRecordService;
-import com.creditcloud.user.entity.User;
 import com.creditcloud.user.entity.dao.LoginRecordDAO;
 import com.creditcloud.user.entity.dao.UserDAO;
 import com.creditcloud.user.entity.record.UserLoginRecord;
@@ -46,10 +45,10 @@ public class UserLoginRecordServiceBean implements UserLoginRecordService {
     @Override
     public List<com.creditcloud.model.user.UserLoginRecord> listByLoginDate(String clientCode, Date from, Date to, PageInfo pageInfo) {
 
-	PagedResult<UserLoginRecord> records = loginRecordDAO.listByLoginDateRange(from, to, PageInfo.ALL);
+	List<UserLoginRecord> records = loginRecordDAO.listByLoginDateRange(from, to, PageInfo.ALL);
 	List<com.creditcloud.model.user.User> users = new ArrayList<com.creditcloud.model.user.User>();
 	List<com.creditcloud.model.user.UserLoginRecord> loginRecords = new ArrayList<>();
-	for (UserLoginRecord record : records.getResults()) {
+	for (UserLoginRecord record : records) {
 
 	    loginRecords.add(DTOUtils.getUserLoginRecord(record));
 //	    users.add(DTOUtils.getUserDTO(record.getUser()));

@@ -96,21 +96,25 @@ public class LoginRecordDAO extends AbstractDAO<UserLoginRecord> {
 
     /**
      * 根据日期统计用户登录
-     *
+     * 先根据用户登录日期分组 在根据用户creditdal分组
      * @param from
      * @param to
      * @param pageInfo
      * @return
      */
-    public PagedResult<UserLoginRecord> listByLoginDateRange(Date from, Date to, PageInfo pageInfo) {
-	List<UserLoginRecord> result = getEntityManager()
-		.createNamedQuery("UserLoginRecord.listByLoginDateRange", UserLoginRecord.class)
+    public List<UserLoginRecord> listByLoginDateRange(Date from, Date to, PageInfo pageInfo) {
+	List<UserLoginRecord> records = new ArrayList<>();
+	List<Object[]> objects = getEntityManager()
+		.createNamedQuery("UserLoginRecord.listByLoginDateRange")
 		.setParameter("from", from)
 		.setParameter("to", to)
-		.setFirstResult(pageInfo.getOffset())
-		.setMaxResults(pageInfo.getSize())
 		.getResultList();
-	return new PagedResult<>(result, countByLoginDateRange(from, to));
+	for (Object[] object : objects) {
+	    Date day = (Date) object[0];
+	    UserLoginRecord record = (UserLoginRecord) object[2];
+	    records.add(record);
+	}
+	return records;
     }
 
     public int countByLoginDateRange(Date from, Date to) {

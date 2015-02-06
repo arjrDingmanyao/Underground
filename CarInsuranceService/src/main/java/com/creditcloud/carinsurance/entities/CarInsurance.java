@@ -1,12 +1,12 @@
 package com.creditcloud.carinsurance.entities;
 
+import com.creditcloud.carinsurance.model.enums.CarInsuranceChagreBackType;
+import com.creditcloud.carinsurance.model.enums.CarInsuranceDurationType;
+import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
+import com.creditcloud.carinsurance.model.enums.CarInsuranceType;
 import com.creditcloud.common.entities.UUIDEntity;
 import com.creditcloud.model.constant.LoanConstant;
 import com.creditcloud.model.constraints.IncrementalInteger;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceType;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceDurationType;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceChagreBackType;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +15,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -127,6 +130,12 @@ public class CarInsurance extends UUIDEntity {
     // @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false, length = 50)
     private String createDate;
+
+    /**
+     * 受理时间
+     */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timeRecord;
 
     /**
      * @ 扣款 通知接口
