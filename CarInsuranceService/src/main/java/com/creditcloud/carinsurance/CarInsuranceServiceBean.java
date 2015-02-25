@@ -62,7 +62,6 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     @EJB
     CarInsuranceRepaymentService carInsuranceRepaymentService;
 
-
     /**
      * 根据车险分期的 时间和状态查询数据
      *
@@ -116,8 +115,14 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     }
 
     @Override
-    public CarInsuranceModel getByCarInsuranceModelById(String clientCode, String Id) {
-	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public CarInsuranceModel getCarInsuranceModelById(String id) {
+	CarInsurance carInsurance = carInsuranceDAO.find(id);
+	CarInsuranceModel model = null;
+	if (carInsurance != null) {
+	    User user = userService.findByUserId(appBean.getClientCode(), carInsurance.getUserId());
+	    model = CarInsuranceDTOUtils.convertCarInsuranceDTO(carInsurance, user);
+	}
+	return model;
     }
 
     /**
@@ -128,7 +133,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     @Override
     public void create(CarInsuranceModel model) {
 	CarInsurance carInsurance = CarInsuranceDTOUtils.convertCarInsurance(model);
+
 	//1 根据分期类别 然后计算还款计划
+	carInsurance.setTimeRecord(new Date());
 	carInsurance = carInsuranceDAO.create(carInsurance);
 	BigDecimal firstValue = carInsurance.getAmount();
 	BigDecimal secondValue = new BigDecimal(carInsurance.getDuration());
@@ -258,7 +265,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
      * @return
      */
     @Override
-    public List<CarInsuranceRepaymentModel> getCarInsuranceDetailById(String carInsuranceid) {
+    public List<CarInsuranceRepaymentModel> getCarInsuranceRepaymentDetailById(String carInsuranceid) {
 	logger.debug(carInsuranceid);
 	CarInsurance carInsurance = carInsuranceDAO.find(carInsuranceid);
 	List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
