@@ -711,7 +711,7 @@ public class FundRecordServiceBean implements FundRecordService {
 	UserFund investFund = fundDAO.find(investUserId);
 	UserFund loanFund = fundDAO.find(loanUserId);
 	//不要更改periodDesc格式，查找还款的时候需要对照period
-	String periodDesc = "" + period;
+	String periodDesc = "第" + period + "期还款";
 	recordDAO.create(new FundInvestRepay(investFund,
 		new RealmEntity(Realm.INVEST, investId),
 		FundRecordStatus.SUCCESSFUL,
