@@ -124,7 +124,7 @@ public class CarInsuranceRepayment extends UUIDEntity {
     @Column(nullable = true, unique = true)
     private String orderId;
 
-    public CarInsuranceRepayment(BigDecimal amountInterest, CarInsurance carInsurance, int currentPeriod, Date dueDate, BigDecimal amountPrincipal, CarInsuranceStatus status, BigDecimal repayAmount, Date repayDate) {
+    public CarInsuranceRepayment(BigDecimal amountInterest, CarInsurance carInsurance, int currentPeriod, Date dueDate, BigDecimal amountPrincipal, CarInsuranceStatus status, BigDecimal repayAmount) {
 	this.amountInterest = amountInterest;
 	this.carInsurance = carInsurance;
 	this.currentPeriod = currentPeriod;
@@ -132,6 +132,5 @@ public class CarInsuranceRepayment extends UUIDEntity {
 	this.amountPrincipal = amountPrincipal;
 	this.status = status;
 	this.repayAmount = repayAmount;
-	this.repayDate = repayDate;
     }
 }

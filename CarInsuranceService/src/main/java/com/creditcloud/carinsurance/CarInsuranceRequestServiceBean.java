@@ -268,7 +268,8 @@ public class CarInsuranceRequestServiceBean implements CarInsuranceRequestServic
 	    //修改申请标的状态为已批准
 	    request.setCarInsuranceRequestStatus(CarInsuranceRequestStatus.APPROVED);
 	    carInsuranceRequestDAO.edit(request);
-	    //该车险申请成功后,发送短信给用户
+	    
+	    //3 该车险申请成功后,发送短信给用户
 	    /*
 	     * 在短信恢复正常前暂不发送该类信息 smsService.sendMessage(appBean.getClient(),
 	     * SMSType.NOTIFICATION_LOANREQUEST_STATUS,
