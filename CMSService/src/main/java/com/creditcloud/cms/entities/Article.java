@@ -107,6 +107,18 @@ public class Article extends RecordScopeEntity {
      */
     @Column(nullable = true)
     private String url;
+    
+    /**
+     * 摘要
+     */
+    @Column(nullable = true)
+    private String summary;
+    
+    /**
+     * 缩略图HTML
+     */
+    @Column(nullable = true)
+    private String miniImg;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true)
@@ -131,7 +143,9 @@ public class Article extends RecordScopeEntity {
                    Date pubDate,
                    String author,
                    String media,
-                   String bgColor) {
+                   String bgColor,
+                   String summary,
+                   String miniImg) {
         this.channel = channel;
         this.title = title;
         this.category = category;
@@ -144,5 +158,7 @@ public class Article extends RecordScopeEntity {
         this.author = author;
         this.media = media;
         this.bgColor = bgColor;
+        this.summary = summary;
+        this.miniImg = miniImg;
     }
 }
