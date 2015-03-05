@@ -8,8 +8,10 @@ package com.creditcloud.carinsurance;
 import com.creditcloud.carinsurance.api.CarInsuranceRepaymentService;
 import com.creditcloud.carinsurance.api.CarInsuranceService;
 import com.creditcloud.carinsurance.entities.CarInsurance;
+import com.creditcloud.carinsurance.entities.CarInsuranceFee;
 import com.creditcloud.carinsurance.entities.CarInsuranceRepayment;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceDAO;
+import com.creditcloud.carinsurance.entities.dao.CarInsuranceFeeDAO;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceRepaymentDAO;
 import com.creditcloud.carinsurance.local.ApplicationBean;
 import com.creditcloud.carinsurance.model.CarInsuranceModel;
@@ -19,6 +21,7 @@ import com.creditcloud.carinsurance.model.enums.CarInsuranceDuration;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
 import com.creditcloud.carinsurance.utils.DateUtils;
+import com.creditcloud.config.api.ConfigManager;
 import com.creditcloud.model.criteria.PageInfo;
 import com.creditcloud.model.misc.PagedResult;
 import com.creditcloud.model.user.User;
@@ -61,6 +64,12 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 
     @EJB
     CarInsuranceRepaymentService carInsuranceRepaymentService;
+
+    @EJB
+    private CarInsuranceFeeDAO carInsuranceFeeDAO;
+
+    @EJB
+    private ConfigManager configManager;
 
     /**
      * 根据车险分期的 时间和状态查询数据
@@ -126,14 +135,13 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     }
 
     /**
-     * 接收保存车险分期信息 并计算出还款计划
+     * 接收保存车险分期信息 并计算出还款计划和添加手续费记录
      *
      * @param model
      */
     @Override
     public void create(CarInsuranceModel model) {
 	CarInsurance carInsurance = CarInsuranceDTOUtils.convertCarInsurance(model);
-
 	//1 根据分期类别 然后计算还款计划
 	carInsurance.setTimeRecord(new Date());
 	carInsurance = carInsuranceDAO.create(carInsurance);
@@ -143,8 +151,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	BigDecimal amountPrincipal = firstValue.divide(secondValue, 2);
 	logger.debug("create repayment carInsurance :\n{}", carInsurance);
 	for (int i = 1; i <= carInsurance.getDuration(); i++) {
-	    //计算出还款时间
+	    //1 计算出还款时间
 	    Date dueDate = DateUtils.offset(new Date(), new CarInsuranceDuration(0, i, 0));
+	    
 	    CarInsuranceRepayment repayment = new CarInsuranceRepayment(
 		    new BigDecimal(0),
 		    carInsurance,
@@ -152,12 +161,40 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 		    dueDate,
 		    amountPrincipal,
 		    CarInsuranceStatus.PAYING,
-		    new BigDecimal(0),
-		    new Date());
-	    //保存到数据库
+		    new BigDecimal(0));
+	    //保存还款计划到数据库
 	    carInsuranceRepaymentDAO.create(repayment);
+	    //2 生成手续费记录
+	    BigDecimal feeAmount = new BigDecimal(0);
+	    CarInsuranceFee fee = new CarInsuranceFee();
+	    switch (carInsurance.getDurationType()) {
+		case THREEMONTH:
+		    feeAmount = carInsurance.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getThreemonth()));
+		    fee.setFeeAmount(feeAmount);
+		    fee.setStatus(CarInsuranceStatus.PAYING);
+		    fee.setCarInsuranceRepayment(repayment);
+		    carInsuranceFeeDAO.create(fee);
+		    break;
+		case SIXMONTH:
+		    feeAmount = carInsurance.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getSixmonth()));
+		    fee.setFeeAmount(feeAmount);
+		    fee.setStatus(CarInsuranceStatus.PAYING);
+		    fee.setCarInsuranceRepayment(repayment);
+		    carInsuranceFeeDAO.create(fee);
+		    break;
+		case TENMONTH:
+		    feeAmount = carInsurance.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getTenmonth()));
+		    fee.setFeeAmount(feeAmount);
+		    fee.setStatus(CarInsuranceStatus.PAYING);
+		    fee.setCarInsuranceRepayment(repayment);
+		    carInsuranceFeeDAO.create(fee);
+		    break;
+		default:
+		    logger.info("当前车险分期的期数与分期的还款不匹配,请确保数据完整性后方可操作.");
+		    break;
+	    }
+	    //手续费记录 END
 	}
-
     }
 
     public boolean advanceRepayAll(String id) {
@@ -233,7 +270,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     public PagedResult<CarInsuranceRepaymentModel> listCarInsuranceDueRepayByUser(String clientCode, String userId, Date from, Date to, PageInfo pageInfo, CarInsuranceStatus... status) {
 	appBean.checkClientCode(clientCode);
 	logger.debug("listCarInsuranceDueRepayByUser.[clientCode={}][userId={}][from={}][to={}][pageInfo={}][status={}]", clientCode, userId, from, to, pageInfo, Arrays.asList(status));
-	PagedResult<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listCarInsuranceDueRepay(from, to, pageInfo, status);
+	PagedResult<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listCarInsuranceDueRepayByUser(userId,from, to, pageInfo, status);
 	List<CarInsuranceRepaymentModel> result = new ArrayList<>(repayments.getResults().size());
 	for (CarInsuranceRepayment repayment : repayments.getResults()) {
 	    User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
