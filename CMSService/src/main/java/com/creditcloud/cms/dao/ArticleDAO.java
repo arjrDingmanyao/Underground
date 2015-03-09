@@ -56,6 +56,8 @@ public class ArticleDAO extends AbstractDAO<Article> {
         result.setTitle(article.getTitle());
         result.setUrl(article.getUrl());
         result.setBgColor(article.getBgColor());
+        result.setSummary(article.getSummary());
+        result.setMiniImg(article.getMiniImg());
         edit(result);
         return result;
     }
