@@ -7,7 +7,6 @@ package com.creditcloud.carinsurance;
 
 import com.creditcloud.carinsurance.api.CarInsuranceRepaymentService;
 import com.creditcloud.carinsurance.entities.CarInsurance;
-import com.creditcloud.carinsurance.entities.CarInsuranceFee;
 import com.creditcloud.carinsurance.entities.CarInsuranceRepayment;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceDAO;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceFeeDAO;
@@ -140,7 +139,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
     }
 
     @Override
-    public RepayCarInsuranceResult repay(String repaymentId) {
+    public synchronized RepayCarInsuranceResult repay(String repaymentId) {
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findById(repaymentId);
 	/**
 	 * @ feeAmount 每一期的分期手续费
@@ -150,63 +149,75 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	String insuranceNum = "";
 	BigDecimal feeAmount = new BigDecimal(0);
 	if (repayment != null) {
-	    repayment.setRepayAmount(repayment.getAmountPrincipal());
-	    repayment.setRepayDate(new Date());
-	    //1 把实还金额修改当前应还金额 如果有预期罚金的 还需要做一些计算
-	    repayment.setRepayAmount(repayment.getAmountPrincipal());
-	    repayment.setStatus(CarInsuranceStatus.CLEARED);
-	    carInsuranceRepaymentDAO.edit(repayment);
-
+	    //车险分期的保单记录 如果是最后一期 则需要修改状态为已还清
 	    CarInsurance temp = repayment.getCarInsurance();
-	    insuranceNum = temp.getInsuranceNum();
-	    //2 判断是否是最后一期
-	    switch (temp.getDurationType()) {
-		case THREEMONTH:
-		    feeAmount = (temp.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getThreemonth()))).divide(new BigDecimal(3), 10, BigDecimal.ROUND_HALF_UP);
-		    if (repayment.getCurrentPeriod() == 3) {
-			islast = true;
-			//修改车险主信息为已还清
-			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
-			carInsuranceDAO.edit(temp);
-		    } else {
-			temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
-			carInsuranceDAO.edit(temp);
+	    switch (repayment.getStatus()) {
+		case INITIATED:
+		    break;
+		case PAYING:
+		    repayment.setRepayAmount(repayment.getAmountPrincipal());
+		    repayment.setRepayDate(new Date());
+		    //1 把实还金额修改当前应还金额 如果有预期罚金的 还需要做一些计算
+		    repayment.setRepayAmount(repayment.getAmountPrincipal());
+		    repayment.setStatus(CarInsuranceStatus.CLEARED);
+		    carInsuranceRepaymentDAO.edit(repayment);
+
+		    insuranceNum = temp.getInsuranceNum();
+		    //2 判断是否是最后一期
+		    switch (temp.getDurationType()) {
+			case THREEMONTH:
+			    if (repayment.getCurrentPeriod() == 3) {
+				islast = true;
+				//修改车险主信息为已还清
+				temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+				carInsuranceDAO.edit(temp);
+			    } else {
+				temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+				carInsuranceDAO.edit(temp);
+			    }
+			    break;
+			case SIXMONTH:
+			    if (repayment.getCurrentPeriod() == 6) {
+				islast = true;
+				//修改车险主信息为已还清
+				temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+				carInsuranceDAO.edit(temp);
+			    } else {
+				temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+				carInsuranceDAO.edit(temp);
+			    }
+			    break;
+			case TENMONTH:
+			    if (repayment.getCurrentPeriod() == 10) {
+				islast = true;
+				//修改车险主信息为已还清
+				temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+				carInsuranceDAO.edit(temp);
+			    } else {
+				temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+				carInsuranceDAO.edit(temp);
+			    }
+			    break;
+			default:
+			    logger.info("当前车险分期的期数与分期的还款不匹配,请确保数据完整性后方可操作.");
+			    break;
 		    }
 		    break;
-		case SIXMONTH:
-		    feeAmount = (temp.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getSixmonth()))).divide(new BigDecimal(6), 10, BigDecimal.ROUND_HALF_DOWN);
-		    if (repayment.getCurrentPeriod() == 6) {
-			islast = true;
-			//修改车险主信息为已还清
-			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
-			carInsuranceDAO.edit(temp);
-		    } else {
-			temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
-			carInsuranceDAO.edit(temp);
-		    }
+		case OVERDUE:
+//		    如果是逾期还要计算逾期罚金费用
 		    break;
-		case TENMONTH:
-		    feeAmount = (temp.getAmount().multiply(new BigDecimal(configManager.getCarInsuranceConfig().getPeriodFee().getTenmonth()))).divide(new BigDecimal(10), 10, BigDecimal.ROUND_HALF_DOWN);
-		    if (repayment.getCurrentPeriod() == 10) {
-			islast = true;
-			//修改车险主信息为已还清
-			temp.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
-			carInsuranceDAO.edit(temp);
-		    } else {
-			temp.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
-			carInsuranceDAO.edit(temp);
-		    }
+		case CLEARED:
+		    break;
+		case BREACH:
+		    break;
+		case ARCHIVED:
+		    break;
+		case CANCELED:
 		    break;
 		default:
-		    logger.info("当前车险分期的期数与分期的还款不匹配,请确保数据完整性后方可操作.");
-		    break;
+
 	    }
-	    //3 添加一条手续费记录
-	    CarInsuranceFee fee = new CarInsuranceFee();
-	    fee.setFeeAmount(feeAmount);
-	    fee.setStatus(CarInsuranceStatus.PAYING);
-	    fee.setCarInsuranceRepayment(repayment);
-	    carInsuranceFeeDAO.create(fee);
+
 	}
 	User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 	CarInsuranceRepaymentModel repaymentModel = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);

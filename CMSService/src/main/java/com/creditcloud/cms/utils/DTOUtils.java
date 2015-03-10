@@ -34,7 +34,9 @@ public class DTOUtils {
                                                            article.getUrl(),
                                                            article.getPubDate(),
                                                            article.getMedia(),
-                                                           article.getAuthor());
+                                                           article.getAuthor(),
+                                                           article.getSummary(),
+                                                           article.getMiniImg());
             result.setBgColor(article.getBgColor());
             result.setTimeRecorded(article.getTimeRecorded());
         }
@@ -80,7 +82,9 @@ public class DTOUtils {
                                  article.getPubDate(),
                                  article.getAuthor(),
                                  article.getMedia(),
-                                 article.getBgColor());
+                                 article.getBgColor(),
+                                 article.getSummary(),
+                                 article.getMiniImg());
             result.setId(article.getId());
         }
         return result;
