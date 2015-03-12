@@ -400,6 +400,14 @@ public class SMSServiceBean implements SMSService {
 		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
 		nameValuePairs.add(new BasicNameValuePair("p4", content[3]));
 		break;
+	    case NOTIFICATION_AUTO_REPAYMENT_NOTICE_NEW:
+		logger.debug("SMSTye NOTIFICATION_AUTO_REPAYMENT_NOTICE_NEW");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getRepaymentNoticeNew()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
+		nameValuePairs.add(new BasicNameValuePair("p4", content[3]));
+		break;
 	    default:
 		logger.debug("SMSTye not set");
 		break;

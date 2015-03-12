@@ -153,17 +153,55 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	for (int i = 1; i <= carInsurance.getDuration(); i++) {
 	    //1 计算出还款时间
 	    Date dueDate = DateUtils.offset(new Date(), new CarInsuranceDuration(0, i, 0));
-	    
-	    CarInsuranceRepayment repayment = new CarInsuranceRepayment(
-		    new BigDecimal(0),
-		    carInsurance,
-		    i,
-		    dueDate,
-		    amountPrincipal,
-		    CarInsuranceStatus.PAYING,
-		    new BigDecimal(0));
-	    //保存还款计划到数据库
-	    carInsuranceRepaymentDAO.create(repayment);
+	    CarInsuranceRepayment repayment;
+	    if (i == 3) {
+		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(2)));
+		repayment = new CarInsuranceRepayment(
+			new BigDecimal(0),
+			carInsurance,
+			i,
+			dueDate,
+			lastAmountPrincipal,
+			CarInsuranceStatus.PAYING,
+			new BigDecimal(0));
+		//保存还款计划到数据库
+		carInsuranceRepaymentDAO.create(repayment);
+	    } else if (i == 6) {
+		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(5)));
+		repayment = new CarInsuranceRepayment(
+			new BigDecimal(0),
+			carInsurance,
+			i,
+			dueDate,
+			lastAmountPrincipal,
+			CarInsuranceStatus.PAYING,
+			new BigDecimal(0));
+		//保存还款计划到数据库
+		carInsuranceRepaymentDAO.create(repayment);
+	    } else if (i == 10) {
+		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(9)));
+		repayment = new CarInsuranceRepayment(
+			new BigDecimal(0),
+			carInsurance,
+			i,
+			dueDate,
+			lastAmountPrincipal,
+			CarInsuranceStatus.PAYING,
+			new BigDecimal(0));
+		//保存还款计划到数据库
+		carInsuranceRepaymentDAO.create(repayment);
+	    } else {
+		repayment = new CarInsuranceRepayment(
+			new BigDecimal(0),
+			carInsurance,
+			i,
+			dueDate,
+			amountPrincipal,
+			CarInsuranceStatus.PAYING,
+			new BigDecimal(0));
+		//保存还款计划到数据库
+		carInsuranceRepaymentDAO.create(repayment);
+	    }
 	    //2 生成手续费记录
 	    BigDecimal feeAmount = new BigDecimal(0);
 	    CarInsuranceFee fee = new CarInsuranceFee();
@@ -270,7 +308,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     public PagedResult<CarInsuranceRepaymentModel> listCarInsuranceDueRepayByUser(String clientCode, String userId, Date from, Date to, PageInfo pageInfo, CarInsuranceStatus... status) {
 	appBean.checkClientCode(clientCode);
 	logger.debug("listCarInsuranceDueRepayByUser.[clientCode={}][userId={}][from={}][to={}][pageInfo={}][status={}]", clientCode, userId, from, to, pageInfo, Arrays.asList(status));
-	PagedResult<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listCarInsuranceDueRepayByUser(userId,from, to, pageInfo, status);
+	PagedResult<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listCarInsuranceDueRepayByUser(userId, from, to, pageInfo, status);
 	List<CarInsuranceRepaymentModel> result = new ArrayList<>(repayments.getResults().size());
 	for (CarInsuranceRepayment repayment : repayments.getResults()) {
 	    User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
