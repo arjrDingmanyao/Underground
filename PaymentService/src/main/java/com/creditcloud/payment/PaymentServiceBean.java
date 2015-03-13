@@ -6,8 +6,6 @@ import com.creditcloud.model.enums.TransStat;
 import com.creditcloud.model.enums.misc.Bank;
 import com.creditcloud.model.enums.misc.City;
 import com.creditcloud.model.enums.misc.Province;
-import com.creditcloud.model.exception.PaymentException;
-import com.creditcloud.model.exception.PaymentNotRollbackException;
 import com.creditcloud.payment.api.PaymentService;
 import com.creditcloud.payment.entities.dao.FssAccountDAO;
 import com.creditcloud.payment.entities.dao.PaymentAccountDAO;
@@ -177,6 +175,14 @@ public class PaymentServiceBean
         return queryBalance(clientCode, userId, true);
     }
 
+    /**
+     * 入参rollbackOnException的值已经没有意义了
+     * @param clientCode
+     * @param userId
+     * @param rollbackOnException
+     * @return 
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public UserBalanceResult queryBalance(String clientCode, String userId, boolean rollbackOnException) {
         this.appBean.checkClientCode(clientCode);
         com.creditcloud.payment.entities.PaymentAccount paymentAccount = this.paymentAccountDAO.getByUserId(clientCode, userId);
@@ -188,8 +194,10 @@ public class PaymentServiceBean
             try {
                 bqResponse = (BalanceQueryResponse) getResponse(userRequest, BalanceQueryResponse.class);
             } catch (RuntimeException ex) {
-                throw (rollbackOnException ? new PaymentException(ex) : new PaymentNotRollbackException(ex));
+//                throw (rollbackOnException ? new PaymentException(ex) : new PaymentNotRollbackException(ex));
+                logger.error("实时查询汇付余额接口异常：{}", ex);
             }
+            logger.debug("实时查询汇付余额返回结果：{}", bqResponse);
             if (verifyResponse(clientCode, bqResponse) == 0) {
                 if (bqResponse.success()) {
                     return new UserBalanceResult(bqResponse.getRespCode(), bqResponse.getRespDesc(), NumberUtils.parse(bqResponse.getAcctBal()).setScale(2), NumberUtils.parse(bqResponse.getFrzBal()).setScale(2), NumberUtils.parse(bqResponse.getAvlBal()).setScale(2));
