@@ -121,7 +121,9 @@ public class FundRecordServiceBean implements FundRecordService {
     @Override
     public void update(String clientCode, com.creditcloud.fund.model.record.FundRecord record) {
 	appBean.checkClientCode(clientCode);
+        logger.info("传入update方法的record对象：{}",record);
 	FundRecord result = recordDAO.find(record.getId());
+        logger.info("find方法查询缓存result对象：{}",result);
 	if (result != null) {
 	    //TODO暂时只有下列field可以修改
 	    if (record.getAccount() != null) {
@@ -136,6 +138,8 @@ public class FundRecordServiceBean implements FundRecordService {
 
 	    // delete cache
 	    appBean.deleteCache(record.getUserId(), CacheConstant.KEY_PREFIX_USER_FUND);
+            logger.info("调用edit方法后的record对象：{}",record);
+            logger.info("缓存result对象：{}",result);
 	}
     }
 
