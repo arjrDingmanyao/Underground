@@ -6,6 +6,7 @@
 package com.creditcloud.cms.utils;
 
 import com.creditcloud.cms.entities.Article;
+import com.creditcloud.cms.entities.Banner;
 import com.creditcloud.cms.entities.Channel;
 
 /**
@@ -103,6 +104,49 @@ public class DTOUtils {
                                  channel.getCategory(),
                                  channel.getDescrption());
             result.setId(channel.getId());
+        }
+        return result;
+    }
+    
+    
+    public static com.creditcloud.cms.model.Banner getBannerDTO(Banner banner) {
+        com.creditcloud.cms.model.Banner result = null;
+        if (banner != null) {
+            result = new com.creditcloud.cms.model.Banner(banner.getId(),
+                                                          banner.getName(),
+                                                          banner.getNumber(),
+                                                          banner.getStatus(),
+                                                          banner.getUrl(),
+                                                          banner.getImgUrl(),
+                                                          banner.getCreateTime(),
+                                                          banner.getUpdateTime(),
+                                                          banner.getAuthor(),
+                                                          banner.getUpdateBy());
+            result.setTimeRecorded(banner.getTimeRecorded());
+        }
+        return result;
+    }
+    
+    
+    /**
+    * 从model模型转换到Entity模型
+    *
+    * @param banner
+    * @return
+    */
+    public static Banner convertBannerDTO(com.creditcloud.cms.model.Banner banner) {
+        Banner result = null;
+        if (banner != null) {
+            result = new Banner(banner.getName(),
+                                banner.getNumber(),
+                                banner.getStatus(),
+                                banner.getUrl(),
+                                banner.getImgUrl(),
+                                banner.getCreateTime(),
+                                banner.getUpdateTime(),
+                                banner.getAuthor(),
+                                banner.getUpdateBy());
+            result.setId(banner.getId());
         }
         return result;
     }
