@@ -400,6 +400,34 @@ public class SMSServiceBean implements SMSService {
 		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
 		nameValuePairs.add(new BasicNameValuePair("p4", content[3]));
 		break;
+	    case NOTIFICATION_AUTO_REPAYMENT_NOTICE_NEW:
+		logger.debug("SMSTye NOTIFICATION_AUTO_REPAYMENT_NOTICE_NEW");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getRepaymentNoticeNew()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
+		nameValuePairs.add(new BasicNameValuePair("p4", content[3]));
+		break;
+	    case NOTIFICATION_AUTO_LOANS_SUCCESS_NOTICE:
+		logger.debug("SMSTye NOTIFICATION_AUTO_LOANS_SUCCESS_NOTICE");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getAutoLoansSuccessNotice()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
+		break;
+	    case NOTIFICATION_AUTO_LOANS_FAILURE_NOTICE:
+		logger.debug("SMSTye NOTIFICATION_AUTO_LOANS_FAILURE_NOTICE");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getAutoLoansFailureNotice()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		break;
+	    case NOTIFICATION_LOANS_SETTLE_NOTICE:
+		logger.debug("SMSTye NOTIFICATION_LOANS_SETTLE_NOTICE");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getLoansSettleNotice()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
+		break;
 	    default:
 		logger.debug("SMSTye not set");
 		break;
