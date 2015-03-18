@@ -8,8 +8,10 @@ package com.creditcloud.cms;
 import com.creditcloud.cms.api.CMSService;
 import com.creditcloud.cms.enums.Category;
 import com.creditcloud.cms.dao.ArticleDAO;
+import com.creditcloud.cms.dao.BannerDAO;
 import com.creditcloud.cms.dao.ChannelDAO;
 import com.creditcloud.cms.entities.Article;
+import com.creditcloud.cms.entities.Banner;
 import com.creditcloud.cms.entities.Channel;
 import com.creditcloud.cms.local.ApplicationBean;
 import com.creditcloud.cms.utils.DTOUtils;
@@ -44,6 +46,9 @@ public class CMSServiceBean extends BaseBean implements CMSService {
 
     @EJB
     ChannelDAO channelDAO;
+    
+    @EJB
+    BannerDAO bannerDAO;
 
     //****************************************关于栏目的实现*******************************************
     @Override
@@ -195,5 +200,101 @@ public class CMSServiceBean extends BaseBean implements CMSService {
         }
         logger.debug("fail to find channel {} to save article.", article.getChannelId());
         return null;
+    }
+    /************************************************BANNER相关********************************************************/
+     /**
+     * 根据文章Id获取BANNER
+     *
+     * @param clientCode
+     * @param id
+     * @return
+     */
+    @Override
+    public com.creditcloud.cms.model.Banner getBannerById(String clientCode, String id){
+        appBean.checkClientCode(clientCode);
+        return DTOUtils.getBannerDTO(bannerDAO.find(id));
+    }
+
+    /**
+     * list by criteria
+     *
+     * @param clientCode
+     * @param pageInfo
+     * @return
+     */
+    @Override
+    public PagedResult<com.creditcloud.cms.model.Banner> listBanner(String clientCode, PageInfo pageInfo){
+        appBean.checkClientCode(clientCode);
+        PagedResult<Banner> banners = bannerDAO.listAll(pageInfo);
+        List<com.creditcloud.cms.model.Banner> result = new ArrayList<>(banners.getResults().size());
+        for (Banner banner : banners.getResults()) {
+            result.add(DTOUtils.getBannerDTO(banner));
+        }
+        return new PagedResult<>(result, banners.getTotalSize());
+    }
+
+    /**
+     * 通过姓名列出BANNER
+     *
+     * @param clientCode
+     * @param name
+     * @param pageInfo
+     * @return
+     */
+    @Override
+    public PagedResult<com.creditcloud.cms.model.Banner> listBannerByName(String clientCode, String name, PageInfo pageInfo){
+        appBean.checkClientCode(clientCode);
+        PagedResult<Banner> banners = bannerDAO.listByName(name, pageInfo);
+        List<com.creditcloud.cms.model.Banner> result = new ArrayList<>(banners.getResults().size());
+        for (Banner banner : banners.getResults()) {
+            result.add(DTOUtils.getBannerDTO(banner));
+        }
+        return new PagedResult<>(result, bannerDAO.countByName(name));
+    }
+    
+    /**
+     * list by criteria
+     *
+     * @param clientCode
+     * @param pageInfo
+     * @return
+     */
+    @Override
+    public PagedResult<com.creditcloud.cms.model.Banner> listBannerActive(String clientCode, PageInfo pageInfo){
+        appBean.checkClientCode(clientCode);
+        PagedResult<Banner> banners = bannerDAO.listActive(pageInfo);
+        List<com.creditcloud.cms.model.Banner> result = new ArrayList<>(banners.getResults().size());
+        for (Banner banner : banners.getResults()) {
+            result.add(DTOUtils.getBannerDTO(banner));
+        }
+        return new PagedResult<>(result, bannerDAO.countActive());
+    }
+
+     /**
+     * 根据主键删除一个BANNER
+     *
+     * @param clientCode
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean deleteBannerById(String clientCode, String id){
+        appBean.checkClientCode(clientCode);
+        bannerDAO.removeById(id);
+        return articleDAO.find(id) == null;
+    }
+
+    /**
+     * 创建或更新文章
+     * <p>
+     * 更新成功之后返回更新成功的文章
+     *
+     * @param clientCode
+     * @param banner
+     * @return
+     */
+    public com.creditcloud.cms.model.Banner saveBanner(String clientCode, com.creditcloud.cms.model.Banner banner){
+        appBean.checkClientCode(clientCode);
+        return DTOUtils.getBannerDTO(bannerDAO.save(DTOUtils.convertBannerDTO(banner)));
     }
 }
