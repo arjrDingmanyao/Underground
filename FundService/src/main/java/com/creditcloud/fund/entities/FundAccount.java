@@ -41,6 +41,8 @@ import javax.persistence.UniqueConstraint;
      */
     @NamedQuery(name = "FundAccount.getByUserAndAccount",
                 query = "select fa from FundAccount fa where fa.fund.userId = :userId and fa.account.account = :account"),
+    @NamedQuery(name = "FundAccount.getByAccount",
+                query = "select fa from FundAccount fa where fa.account.account = :account"),
     @NamedQuery(name = "FundAccount.getDefaultByUser",
                 query = "select fa from FundAccount fa where fa.fund.userId = :userId and fa.defaultAccount = TRUE"),
     /**
