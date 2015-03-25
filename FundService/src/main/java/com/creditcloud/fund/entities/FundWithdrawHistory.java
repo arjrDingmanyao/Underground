@@ -36,7 +36,7 @@ import org.eclipse.persistence.annotations.Index;
 	    @UniqueConstraint(columnNames = {"USER_ID", "orderId"})})
 @NamedQueries({
     @NamedQuery(name = "FundWithdrawHistory.listByPageInfoByStatus",
-	    query = "select O from FundWithdrawHistory O where O.status in :statusList order by O.timeRecorded ASC"),
+	    query = "select O from FundWithdrawHistory O where O.status in :statusList order by O.approveDateTime DESC"),
     @NamedQuery(name = "FundWithdrawHistory.findByOrderId",
 	    query = "select O from FundWithdrawHistory O where O.orderId= :orderId order by O.timeRecorded ASC"),
 
