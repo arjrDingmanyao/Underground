@@ -40,7 +40,12 @@ import lombok.NoArgsConstructor;
      * count
      */
     @NamedQuery(name = "CarInsurance.countByUser",
-	    query = "select count(o) from CarInsurance o where o.userId = :userId")
+	    query = "select count(o) from CarInsurance o where o.userId = :userId"),
+       /**
+     * update
+     */
+    @NamedQuery(name = "CarInsurance.markStatus",
+                query = "update CarInsurance o set o.carInsuranceStatus = :status where o.id in :ids")
 })
 public class CarInsurance extends UUIDEntity {
 

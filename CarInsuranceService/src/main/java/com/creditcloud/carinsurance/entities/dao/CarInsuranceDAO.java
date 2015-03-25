@@ -10,6 +10,7 @@ import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
 import com.creditcloud.common.entities.dao.AbstractDAO;
 import com.creditcloud.model.criteria.PageInfo;
 import com.creditcloud.model.misc.PagedResult;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -135,4 +136,25 @@ public class CarInsuranceDAO extends AbstractDAO<CarInsurance> {
 	int totalSize = countByUser(userId);
 	return new PagedResult<>(carInsurances, totalSize);
     }
+
+    /**
+     * 用于修改车险分期的状态,只修改状态字段
+     *
+     * @param status
+     * @param ids
+     * @return
+     */
+    public boolean markStatus(CarInsuranceStatus status, String... ids) {
+	if (ids == null || ids.length == 0) {
+	    return false;
+	}
+	int result = getEntityManager()
+		.createNamedQuery("CarInsurance.markStatus")
+		.setParameter("status", status)
+		.setParameter("ids", Arrays.asList(ids))
+		.executeUpdate();
+	getEntityManager().flush();
+	return result > 0;
+    }
+
 }

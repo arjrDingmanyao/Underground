@@ -17,7 +17,6 @@ import com.creditcloud.carinsurance.model.enums.CarInsuranceChagreBackType;
 import com.creditcloud.carinsurance.model.enums.CarInsurancePayStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceRequestStatus;
 import com.creditcloud.carinsurance.model.enums.CarInsuranceStatus;
-import com.creditcloud.carinsurance.model.enums.CarInsuranceType;
 import com.creditcloud.carinsurance.utils.CarInsuranceDTOUtils;
 import com.creditcloud.client.api.EmployeeService;
 import com.creditcloud.config.api.ConfigManager;

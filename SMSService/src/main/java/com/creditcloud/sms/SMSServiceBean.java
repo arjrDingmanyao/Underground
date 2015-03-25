@@ -428,6 +428,39 @@ public class SMSServiceBean implements SMSService {
 		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
 		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
 		break;
+	    case NOTIFICATION_AUTO_LOAN_OVERDUE_REPAYMENT_NOTICE:
+		logger.debug("SMSTye NOTIFICATION_AUTO_LOAN_OVERDUE_REPAYMENT_NOTICE");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getAutoLoanOverdueRepaymentNotice()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
+		nameValuePairs.add(new BasicNameValuePair("p4", content[3]));
+		nameValuePairs.add(new BasicNameValuePair("p5", content[4]));
+		nameValuePairs.add(new BasicNameValuePair("p6", content[5]));
+		nameValuePairs.add(new BasicNameValuePair("p7", content[6]));
+		break;
+	    case NOTIFICATION_AUTO_LOANS_OVERDUE_SUCCESS_NOTICE:
+		logger.debug("SMSTye NOTIFICATION_AUTO_LOANS_OVERDUE_SUCCESS_NOTICE");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getAutoLoansOverdueSuccessNotice()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
+		nameValuePairs.add(new BasicNameValuePair("p4", content[3]));
+		nameValuePairs.add(new BasicNameValuePair("p5", content[4]));
+		nameValuePairs.add(new BasicNameValuePair("p6", content[5]));
+		nameValuePairs.add(new BasicNameValuePair("p7", content[6]));
+		break;
+	    case NOTIFICATION_AUTO_LOANS_OVERDUE_FAILURE_NOTICE:
+		logger.debug("SMSTye NOTIFICATION_AUTO_LOANS_OVERDUE_FAILURE_NOTICE");
+		nameValuePairs.add(new BasicNameValuePair("cid", cid.getAutoLoansOverdueFailureNotice()));
+		nameValuePairs.add(new BasicNameValuePair("p1", content[0]));
+		nameValuePairs.add(new BasicNameValuePair("p2", content[1]));
+		nameValuePairs.add(new BasicNameValuePair("p3", content[2]));
+		nameValuePairs.add(new BasicNameValuePair("p4", content[3]));
+		nameValuePairs.add(new BasicNameValuePair("p5", content[4]));
+		nameValuePairs.add(new BasicNameValuePair("p6", content[5]));
+		nameValuePairs.add(new BasicNameValuePair("p7", content[6]));
+		break;
 	    default:
 		logger.debug("SMSTye not set");
 		break;
