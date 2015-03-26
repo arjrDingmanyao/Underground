@@ -86,7 +86,7 @@ public class SMSServiceBean implements SMSService {
         for(SMSBlackList sb : smsBlackList){
             if(mobile.trim().equals(sb.getNumber().trim())){
                 flag = false;
-                logger.info(mobile+"in blackList.");
+                logger.info(mobile+" in blackList.");
             }else{
                 
             }
