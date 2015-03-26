@@ -92,6 +92,19 @@ public class CarInsuranceFeeServiceBean implements CarInsuranceFeeService {
     }
 
     /**
+     * 根据保单号和当前期数，来查询手续费及
+     *
+     * @param id
+     * @return
+     */
+    public CarInsuranceFeeModel findByInSuranceNumAndCurrentPeriod(String inSuranceNum, int currentPeriod) {
+	CarInsuranceFee fee = carInsuranceFeeDAO.findByInSuranceNumAndCurrentPeriod(inSuranceNum, currentPeriod);
+
+	return CarInsuranceDTOUtils.convertCarInsuranceFeeDTO(fee);
+
+    }
+
+    /**
      * 新修改车险手续费的状态
      *
      * @param id
@@ -142,6 +155,8 @@ public class CarInsuranceFeeServiceBean implements CarInsuranceFeeService {
 	    XSSFWorkbook workbook = new XSSFWorkbook(file);
 	    XSSFSheet sheet = workbook.getSheetAt(0);
 	    Iterator<Row> rowIterator = sheet.iterator();
+	    String insuranceNum = "";
+	    int currentPeriod = 0;
 	    while (rowIterator.hasNext()) {
 		Row row = rowIterator.next();
 		Iterator<Cell> cellIterator = row.cellIterator();
@@ -149,12 +164,19 @@ public class CarInsuranceFeeServiceBean implements CarInsuranceFeeService {
 		    Cell cell = cellIterator.next();
 		    switch (cell.getCellType()) {
 			case Cell.CELL_TYPE_NUMERIC:
-			    System.out.print(cell.getNumericCellValue() + "\t");
+			    currentPeriod = (int) cell.getNumericCellValue();
+			    System.out.print((int) cell.getNumericCellValue() + "\t");
 			    break;
 			case Cell.CELL_TYPE_STRING:
+			    insuranceNum = cell.getStringCellValue().trim();
 			    System.out.print(cell.getStringCellValue() + "\t");
 			    break;
 		    }
+		}
+		CarInsuranceFee fee = carInsuranceFeeDAO.findByInSuranceNumAndCurrentPeriod(insuranceNum, currentPeriod);
+		//执行更新操作
+		if (fee != null) {
+		    updateCarInsuranceFeeSatatus(fee.getId(), CarInsuranceStatus.CLEARED);
 		}
 		System.out.println("");
 	    }

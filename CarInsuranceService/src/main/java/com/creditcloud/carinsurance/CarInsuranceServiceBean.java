@@ -158,32 +158,8 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    //1 计算出还款时间
 	    Date dueDate = DateUtils.offset(new Date(), new CarInsuranceDuration(0, i, 0));
 	    CarInsuranceRepayment repayment;
-	    if (i == 3) {
-		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(2)));
-		repayment = new CarInsuranceRepayment(
-			new BigDecimal(0),
-			carInsurance,
-			i,
-			dueDate,
-			lastAmountPrincipal,
-			CarInsuranceStatus.PAYING,
-			new BigDecimal(0));
-		//保存还款计划到数据库
-		carInsuranceRepaymentDAO.create(repayment);
-	    } else if (i == 6) {
-		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(5)));
-		repayment = new CarInsuranceRepayment(
-			new BigDecimal(0),
-			carInsurance,
-			i,
-			dueDate,
-			lastAmountPrincipal,
-			CarInsuranceStatus.PAYING,
-			new BigDecimal(0));
-		//保存还款计划到数据库
-		carInsuranceRepaymentDAO.create(repayment);
-	    } else if (i == 10) {
-		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(9)));
+	    if (i == carInsurance.getDuration()) {
+		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(carInsurance.getDuration()-1)));
 		repayment = new CarInsuranceRepayment(
 			new BigDecimal(0),
 			carInsurance,
