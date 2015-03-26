@@ -15,6 +15,7 @@ import com.creditcloud.fund.entities.FundWithdrawHistory;
 import com.creditcloud.fund.local.ApplicationBean;
 import com.creditcloud.fund.model.enums.FundRecordStatus;
 import com.creditcloud.fund.utils.DTOUtils;
+import com.creditcloud.model.constant.CacheConstant;
 import com.creditcloud.model.criteria.PageInfo;
 import com.creditcloud.model.misc.PagedResult;
 import java.util.ArrayList;
@@ -108,6 +109,10 @@ public class FundWithdrawHistoryServiceBean implements FundWithdrawHistoryServic
 	    persist.setTransferAmount(history.getTransferAmount());
 	    persist.setStatus(history.getStatus());
 	    persist.setTransactionId(history.getTransactionId());
+            if (history.getAccount() != null) {
+		FundAccount account = accountDAO.getByUserAndAccount(history.getUserId(), history.getAccount().getAccount());
+		persist.setAccount(account);
+	    }
 	    //更新
 	    logger.debug("FundWithdrawHistory edit :{}", persist);
 	    fundWithdrawHistoryDAO.edit(persist);
