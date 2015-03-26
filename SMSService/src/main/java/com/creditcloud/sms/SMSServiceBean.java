@@ -84,9 +84,9 @@ public class SMSServiceBean implements SMSService {
         boolean flag = true;
         List<SMSBlackList> smsBlackList = smsBlackListDao.findAll();
         for(SMSBlackList sb : smsBlackList){
-            if(mobile.equals(sb.getNumber())){
+            if(mobile.trim().equals(sb.getNumber().trim())){
                 flag = false;
-                logger.info(mobile+"in blackList.");
+                logger.info(mobile+" in blackList.");
             }else{
                 
             }
