@@ -395,7 +395,7 @@ public class PaymentServiceBean
             request.setChkValue(getChkValue(clientCode, request));
             CashAuditResponse response = (CashAuditResponse) getResponse(request, CashAuditResponse.class);
             if (verifyResponse(clientCode, response) == 0) {
-                return new CashAuditResult(response.getRespCode(), response.getRespDesc(), StringUtils.isEmpty(response.getTransAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getTransAmt()), StringUtils.isEmpty(response.getFeeAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getFeeAmt()), response.getFeeCustId(), response.getFeeAcctId());
+                return new CashAuditResult(response.getRespCode(), response.getRespDesc(), StringUtils.isEmpty(response.getTransAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getTransAmt()), StringUtils.isEmpty(response.getFeeAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getFeeAmt()), response.getFeeCustId(), response.getFeeAcctId(),response.getOpenAcctId());
             }
         }
         return null;
@@ -408,7 +408,7 @@ public class PaymentServiceBean
         request.setChkValue(getChkValue(clientCode, request));
         CashAuditResponse response = (CashAuditResponse) getResponse(request, CashAuditResponse.class);
         if (verifyResponse(clientCode, response) == 0) {
-            return new CashAuditResult(response.getRespCode(), response.getRespDesc(), StringUtils.isEmpty(response.getTransAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getTransAmt()), StringUtils.isEmpty(response.getFeeAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getFeeAmt()), response.getFeeCustId(), response.getFeeAcctId());
+            return new CashAuditResult(response.getRespCode(), response.getRespDesc(), StringUtils.isEmpty(response.getTransAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getTransAmt()), StringUtils.isEmpty(response.getFeeAmt()) ? BigDecimal.ZERO : new BigDecimal(response.getFeeAmt()), response.getFeeCustId(), response.getFeeAcctId(),response.getOpenAcctId());
         }
         return null;
     }

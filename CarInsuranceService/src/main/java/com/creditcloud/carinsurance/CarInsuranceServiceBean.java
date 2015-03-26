@@ -14,6 +14,7 @@ import com.creditcloud.carinsurance.entities.dao.CarInsuranceDAO;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceFeeDAO;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceRepaymentDAO;
 import com.creditcloud.carinsurance.local.ApplicationBean;
+import com.creditcloud.carinsurance.local.CarInsuranceFeeLocalBean;
 import com.creditcloud.carinsurance.model.CarInsuranceModel;
 import com.creditcloud.carinsurance.model.CarInsuranceRepayDetail;
 import com.creditcloud.carinsurance.model.CarInsuranceRepaymentModel;
@@ -70,6 +71,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 
     @EJB
     private ConfigManager configManager;
+
+    @EJB
+    private CarInsuranceFeeLocalBean carInsuranceFeeLocalBean;
 
     /**
      * 根据车险分期的 时间和状态查询数据
@@ -346,6 +350,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
 	List<CarInsuranceRepaymentModel> result = new ArrayList<>(repayments.size());
 	for (CarInsuranceRepayment repayment : repayments) {
+	    //计算逾期罚息
+	    BigDecimal penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+	    repayment.setAmountInterest(penaltyAmount);
 	    User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 	    result.add(CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user));
 	}

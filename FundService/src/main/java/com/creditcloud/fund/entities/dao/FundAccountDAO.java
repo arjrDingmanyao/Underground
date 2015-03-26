@@ -156,6 +156,24 @@ public class FundAccountDAO extends AbstractDAO<FundAccount> {
         }
         return null;
     }
+    
+     /**
+     * 根据银行账号获得fundaccount
+     *
+     * @param account
+     * @return
+     */
+    public FundAccount getByAccount(String account) {
+        try {
+            return getEntityManager()
+                    .createNamedQuery("FundAccount.getByAccount", FundAccount.class)
+                    .setParameter("account", account)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            //do nothing
+        }
+        return null;
+    }
 
     /**
      * 根据userId和银行卡号删除
