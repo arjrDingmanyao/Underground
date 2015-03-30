@@ -9,7 +9,6 @@ import com.creditcloud.common.entities.embedded.RealmEntity;
 import com.creditcloud.common.entities.utils.IdNumberConverter;
 import com.creditcloud.common.entities.utils.MobileConverter;
 import com.creditcloud.common.security.SecurityUtils;
-import com.creditcloud.model.constraints.EmailAddress;
 import com.creditcloud.model.constraints.IdNumber;
 import com.creditcloud.model.constraints.LoginName;
 import com.creditcloud.model.constraints.MobileNumber;
@@ -155,7 +154,7 @@ public class User extends Authenticatable {
     @Convert("mobileConvert")
     private String mobile;
 
-    @EmailAddress
+//    @EmailAddress
     @Column(unique = false)
     private String email;
 
