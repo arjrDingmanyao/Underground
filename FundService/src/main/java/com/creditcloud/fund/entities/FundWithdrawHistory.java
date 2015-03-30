@@ -44,7 +44,7 @@ import org.eclipse.persistence.annotations.Index;
      * count
      */
     @NamedQuery(name = "FundWithdrawHistory.countByStatus",
-	    query = "select count(O) from FundWithdrawHistory O where O.status in :statusList"),
+	    query = "select count(O) from FundWithdrawHistory O where O.status in :statusList order by O.approveDateTime DESC"),
 
     @NamedQuery(name = "FundWithdrawHistory.markStatus",
 	    query = "update FundWithdrawHistory O set O.status = :status where O.id = :id")
