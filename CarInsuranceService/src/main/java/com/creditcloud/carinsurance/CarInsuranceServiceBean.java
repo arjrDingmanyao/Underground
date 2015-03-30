@@ -159,7 +159,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    Date dueDate = DateUtils.offset(new Date(), new CarInsuranceDuration(0, i, 0));
 	    CarInsuranceRepayment repayment;
 	    if (i == carInsurance.getDuration()) {
-		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(carInsurance.getDuration()-1)));
+		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(carInsurance.getDuration() - 1)));
 		repayment = new CarInsuranceRepayment(
 			new BigDecimal(0),
 			carInsurance,
@@ -220,7 +220,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	//1 修改车险还款为已还清
 	CarInsurance carInsurance = carInsuranceDAO.find(id);
 	//2 修改该分期所有的还款计划为已还清 并添加费用
-	if (carInsurance != null && carInsurance.getCarInsuranceStatus().equals("PAYING")) {
+	if (carInsurance != null && carInsurance.getCarInsuranceStatus().equals(CarInsuranceStatus.PAYING)) {
 	    List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
 	    for (CarInsuranceRepayment repayment : repayments) {
 		switch (repayment.getStatus()) {
@@ -238,7 +238,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    }
 	    bool = true;
 	} else {
-	    logger.debug("该车险分期不存在或者已还清 {}", id);
+	    logger.debug("该车险分期不存在或者已还清 {},状态 {}", id, carInsurance.getCarInsuranceStatus());
 	}
 	return bool;
     }
