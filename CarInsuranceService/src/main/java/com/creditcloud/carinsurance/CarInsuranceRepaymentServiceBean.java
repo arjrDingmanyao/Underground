@@ -69,6 +69,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 
     @EJB
     private CarInsuranceFeeLocalBean carInsuranceFeeLocalBean;
+
     /**
      *
      * @获取所有
@@ -78,6 +79,8 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.findAll();
 	List<CarInsuranceRepaymentModel> list = new ArrayList<CarInsuranceRepaymentModel>();
 	for (CarInsuranceRepayment repayment : repayments) {
+	    BigDecimal penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+	    repayment.setAmountInterest(penaltyAmount);
 	    CarInsurance carInsurance = repayment.getCarInsurance();
 	    User user = userService.findByUserId(appBean.getClientCode(), carInsurance.getUserId());
 	    CarInsuranceModel carInsuranceModel = CarInsuranceDTOUtils.convertCarInsuranceDTO(carInsurance, user);
@@ -107,6 +110,8 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
     @Override
     public CarInsuranceRepaymentModel getCarInsuranceRepaymentModelById(String id) {
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findById(id);
+	BigDecimal penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+	repayment.setAmountInterest(penaltyAmount);
 	User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 	CarInsuranceRepaymentModel model = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
 	return model;
@@ -154,16 +159,18 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	String insuranceNum = "";
 	BigDecimal penaltyAmount = new BigDecimal(0);
 	if (repayment != null) {
+	    penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
 	    //车险分期的保单记录 如果是最后一期 则需要修改状态为已还清
 	    CarInsurance carInsurance = repayment.getCarInsurance();
 	    switch (repayment.getStatus()) {
 		case INITIATED:
 		    break;
 		case PAYING:
-		    repayment.setRepayAmount(repayment.getAmountPrincipal());
 		    repayment.setRepayDate(new Date());
-		    //1 把实还金额修改当前应还金额 如果有预期罚金的 还需要做一些计算
-		    repayment.setRepayAmount(repayment.getAmountPrincipal());
+		    //1 把实还金额修改当前应还金额 如果有预期罚金的 
+		    //如果不是逾期状态不会有逾期罚息 为了防止时间错误保险，在正常还款也计算逾期罚息，但一般为0
+		    repayment.setAmountInterest(penaltyAmount);
+		    repayment.setRepayAmount(repayment.getAmountPrincipal().add(penaltyAmount));
 		    repayment.setStatus(CarInsuranceStatus.CLEARED);
 		    carInsuranceRepaymentDAO.edit(repayment);
 
@@ -204,13 +211,11 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 		    carInsuranceDAO.edit(carInsurance);
 		    break;
 		case OVERDUE:
-		    //如果是逾期还要计算逾期罚金费用
+		    //如果是逾期计算逾期罚金费用
 		    penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
 		    repayment.setAmountInterest(penaltyAmount);
-		    repayment.setRepayAmount(repayment.getAmountPrincipal());
+		    repayment.setRepayAmount(repayment.getAmountPrincipal().add(penaltyAmount));
 		    repayment.setRepayDate(new Date());
-		    //1 把实还金额修改当前应还金额 如果有预期罚金的 还需要做一些计算
-		    repayment.setRepayAmount(repayment.getAmountPrincipal());
 		    repayment.setStatus(CarInsuranceStatus.CLEARED);
 		    carInsuranceRepaymentDAO.edit(repayment);
 
@@ -315,21 +320,21 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	carInsuranceRepaymentDAO.markStatus(status, repayIds);
 	//这里如果逾期也同时要修改车险费逾期
 	Set<String> carInsurances = new HashSet<>();
-        for (String id : repayIds) {
-            CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.find(id);
-            carInsurances.add(repayment.getCarInsurance().getId());
-        }
-        if (!carInsurances.isEmpty()) {
-            //更新车险分期
-            switch (status) {
-                case OVERDUE:
-                    carInsuranceDAO.markStatus(CarInsuranceStatus.OVERDUE, carInsurances.toArray(new String[carInsurances.size()]));
-                    break;
-                case BREACH:
-                    carInsuranceDAO.markStatus(CarInsuranceStatus.BREACH, carInsurances.toArray(new String[carInsurances.size()]));
-                    break;
-            }
-        }
+	for (String id : repayIds) {
+	    CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.find(id);
+	    carInsurances.add(repayment.getCarInsurance().getId());
+	}
+	if (!carInsurances.isEmpty()) {
+	    //更新车险分期
+	    switch (status) {
+		case OVERDUE:
+		    carInsuranceDAO.markStatus(CarInsuranceStatus.OVERDUE, carInsurances.toArray(new String[carInsurances.size()]));
+		    break;
+		case BREACH:
+		    carInsuranceDAO.markStatus(CarInsuranceStatus.BREACH, carInsurances.toArray(new String[carInsurances.size()]));
+		    break;
+	    }
+	}
 	return true;
     }
 

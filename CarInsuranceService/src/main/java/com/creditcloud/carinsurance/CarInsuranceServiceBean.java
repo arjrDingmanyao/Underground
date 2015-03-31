@@ -307,6 +307,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     public CarInsuranceRepaymentModel listCarInsuranceRepaymentById(String id) {
 
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.find(id);
+	//计算逾期罚息
+	BigDecimal penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+	repayment.setAmountInterest(penaltyAmount);
 	User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 	CarInsuranceRepaymentModel model = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
 
