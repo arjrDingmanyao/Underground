@@ -87,6 +87,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	    //封装还款计划
 	    CarInsuranceRepaymentModel crm = new CarInsuranceRepaymentModel(repayment.getId(),
 		    repayment.getAmountInterest(),
+		    repayment.getAmountBreach(),
 		    carInsuranceModel,
 		    repayment.getCurrentPeriod(),
 		    repayment.getDueDate(),
@@ -167,6 +168,141 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 		    break;
 		case PAYING:
 		    repayment.setRepayDate(new Date());
+		    //1 把实还金额修改当前应还金额 如果有预期罚金的 
+		    //如果不是逾期状态不会有逾期罚息 为了防止时间错误保险，在正常还款也计算逾期罚息，但一般为0
+		    repayment.setAmountInterest(penaltyAmount);
+		    repayment.setRepayAmount(repayment.getAmountPrincipal().add(penaltyAmount));
+		    repayment.setStatus(CarInsuranceStatus.CLEARED);
+		    carInsuranceRepaymentDAO.edit(repayment);
+
+		    insuranceNum = carInsurance.getInsuranceNum();
+		    //2 判断是否是最后一期
+		    switch (carInsurance.getDurationType()) {
+			case THREEMONTH:
+			    if (repayment.getCurrentPeriod() == 3) {
+				islast = true;
+				//修改车险主信息为已还清
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+			    } else {
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+			    }
+			    break;
+			case SIXMONTH:
+			    if (repayment.getCurrentPeriod() == 6) {
+				islast = true;
+				//修改车险主信息为已还清
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+			    } else {
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+			    }
+			    break;
+			case TENMONTH:
+			    if (repayment.getCurrentPeriod() == 10) {
+				islast = true;
+				//修改车险主信息为已还清
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+			    } else {
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+			    }
+			    break;
+			default:
+			    logger.info("当前车险分期的期数与分期的还款不匹配,请确保数据完整性后方可操作.");
+			    break;
+		    }
+		    carInsuranceDAO.edit(carInsurance);
+		    break;
+		case OVERDUE:
+		    //如果是逾期计算逾期罚金费用
+		    penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+		    repayment.setAmountInterest(penaltyAmount);
+		    repayment.setRepayAmount(repayment.getAmountPrincipal().add(penaltyAmount));
+		    repayment.setRepayDate(new Date());
+		    repayment.setStatus(CarInsuranceStatus.CLEARED);
+		    carInsuranceRepaymentDAO.edit(repayment);
+
+		    insuranceNum = carInsurance.getInsuranceNum();
+		    //2 判断是否是最后一期
+		    switch (carInsurance.getDurationType()) {
+			case THREEMONTH:
+			    if (repayment.getCurrentPeriod() == 3) {
+				islast = true;
+				//修改车险主信息为已还清
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+			    } else {
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+			    }
+			    break;
+			case SIXMONTH:
+			    if (repayment.getCurrentPeriod() == 6) {
+				islast = true;
+				//修改车险主信息为已还清
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+			    } else {
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+			    }
+			    break;
+			case TENMONTH:
+			    if (repayment.getCurrentPeriod() == 10) {
+				islast = true;
+				//修改车险主信息为已还清
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.CLEARED);
+			    } else {
+				carInsurance.setCarInsuranceStatus(CarInsuranceStatus.PAYING);
+			    }
+			    break;
+			default:
+			    logger.info("当前车险分期的期数与分期的还款不匹配,请确保数据完整性后方可操作.");
+			    break;
+		    }
+		    carInsuranceDAO.edit(carInsurance);
+		    break;
+		case CLEARED:
+		    break;
+		case BREACH:
+		    break;
+		case ARCHIVED:
+		    break;
+		case CANCELED:
+		    break;
+		default:
+
+	    }
+
+	}
+	User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
+	CarInsuranceRepaymentModel repaymentModel = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
+	return new RepayCarInsuranceResult(islast, insuranceNum, repaymentModel);
+    }
+
+    /**
+     * 提还违约金
+     *
+     * @param repaymentId
+     * @return
+     */
+    @Override
+    public synchronized RepayCarInsuranceResult advanceRepay(String repaymentId) {
+	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.findById(repaymentId);
+	/**
+	 * @ feeAmount 每一期的分期手续费
+	 * @ 分期手续费的计算方式，分期总额*0.8%/每期
+	 */
+	boolean islast = false;
+	String insuranceNum = "";
+	BigDecimal penaltyAmount = new BigDecimal(0);
+	if (repayment != null) {
+	    //计算提还违约金 提还违约金=应还本金*费率(0.2%)
+	    BigDecimal breachRate = new BigDecimal(0.002);
+	    BigDecimal breachAmount = repayment.getAmountPrincipal().multiply(breachRate);
+	    penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+	    //车险分期的保单记录 如果是最后一期 则需要修改状态为已还清
+	    CarInsurance carInsurance = repayment.getCarInsurance();
+	    switch (repayment.getStatus()) {
+		case INITIATED:
+		    break;
+		case PAYING:
+		    repayment.setRepayDate(new Date());
+		    repayment.setAmountBreach(breachAmount);
 		    //1 把实还金额修改当前应还金额 如果有预期罚金的 
 		    //如果不是逾期状态不会有逾期罚息 为了防止时间错误保险，在正常还款也计算逾期罚息，但一般为0
 		    repayment.setAmountInterest(penaltyAmount);

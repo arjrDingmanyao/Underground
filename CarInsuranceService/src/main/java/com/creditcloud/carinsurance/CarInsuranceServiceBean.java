@@ -226,7 +226,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 		switch (repayment.getStatus()) {
 		    case PAYING:
 			//判断如果是还款中的状态才可以还款
-			carInsuranceRepaymentService.repay(repayment.getId());
+			carInsuranceRepaymentService.advanceRepay(repayment.getId());
 			break;
 		    case CANCELED:
 			logger.debug("该车险还款计划已还清repayment: {}", repayment);
