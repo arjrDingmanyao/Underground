@@ -292,7 +292,7 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	BigDecimal penaltyAmount = new BigDecimal(0);
 	if (repayment != null) {
 	    //计算提还违约金 提还违约金=应还本金*费率(0.2%)
-	    BigDecimal breachRate = new BigDecimal(0.002);
+	    BigDecimal breachRate = new BigDecimal(0.02);
 	    BigDecimal breachAmount = repayment.getAmountPrincipal().multiply(breachRate);
 	    penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
 	    //车险分期的保单记录 如果是最后一期 则需要修改状态为已还清
