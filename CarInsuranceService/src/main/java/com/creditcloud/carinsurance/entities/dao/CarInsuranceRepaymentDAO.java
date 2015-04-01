@@ -129,7 +129,7 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
 	query.setFirstResult(info.getOffset());
 	query.setMaxResults(info.getSize());
 
-	int totalSize = countCarInsuranceDueRepay(from, to, status);
+	int totalSize = countCarInsuranceDueRepay(userId,from, to, status);
 	return new PagedResult(query.getResultList(), totalSize);
     }
 
@@ -141,12 +141,13 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
      * @param status
      * @return
      */
-    int countCarInsuranceDueRepay(Date from, Date to, CarInsuranceStatus... status) {
+    int countCarInsuranceDueRepay(String userId,Date from, Date to, CarInsuranceStatus... status) {
 	if (status == null || status.length == 0) {
 	    return 0;
 	}
 	Long result = getEntityManager()
-		.createNamedQuery("CarInsuranceRepayment.countCarInsuranceDueRepay", Long.class)
+		.createNamedQuery("CarInsuranceRepayment.countCarInsuranceDueRepayByUser", Long.class)
+		.setParameter("userId", userId)
 		.setParameter("from", from)
 		.setParameter("to", to)
 		.setParameter("statusList", Arrays.asList(status))
@@ -180,6 +181,18 @@ public class CarInsuranceRepaymentDAO extends AbstractDAO<CarInsuranceRepayment>
 	return new PagedResult(query.getResultList(), totalSize);
     }
 
+     int countCarInsuranceDueRepay(Date from, Date to, CarInsuranceStatus... status) {
+	if (status == null || status.length == 0) {
+	    return 0;
+	}
+	Long result = getEntityManager()
+		.createNamedQuery("CarInsuranceRepayment.countCarInsuranceDueRepay", Long.class)
+		.setParameter("from", from)
+		.setParameter("to", to)
+		.setParameter("statusList", Arrays.asList(status))
+		.getSingleResult();
+	return result == null ? 0 : result.intValue();
+    }
     /**
      * 根据车险分期 获取该还款计划
      *

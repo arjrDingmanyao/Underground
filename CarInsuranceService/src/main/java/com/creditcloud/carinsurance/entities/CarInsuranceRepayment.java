@@ -101,6 +101,13 @@ public class CarInsuranceRepayment extends UUIDEntity {
 	    scale = 2)
     private BigDecimal amountInterest;
 
+    //提还违约金
+    @Min(0)
+    @Column(nullable = false,
+	    precision = 15,
+	    scale = 2)
+    private BigDecimal amountBreach=BigDecimal.ZERO;
+
     //还款状态
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

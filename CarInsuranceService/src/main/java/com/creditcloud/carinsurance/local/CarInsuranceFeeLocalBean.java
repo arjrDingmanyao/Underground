@@ -51,7 +51,7 @@ public class CarInsuranceFeeLocalBean {
 		return BigDecimal.ZERO;
 	    }
 	} else {
-	    long nowTime = LocalDate.now().toDate().getTime();
+	    long nowTime = LocalDate.now().plusDays(1).toDate().getTime();
 	    long dueTime = repayment.getDueDate().getTime();
 	    days = BigDecimal.valueOf((nowTime - dueTime) / DateUtils.MILLIS_PER_DAY);
 	}
