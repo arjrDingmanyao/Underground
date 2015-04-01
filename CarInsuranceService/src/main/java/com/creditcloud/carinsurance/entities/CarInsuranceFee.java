@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
@@ -22,6 +24,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "TB_CAR_INSURANCE_FEE")
 @Entity
+@NamedQueries({
+    @NamedQuery(name = "CarInsuranceFee.findByInSuranceNumAndCurrentPeriod", query = "select O from CarInsuranceFee O where O.carInsuranceRepayment.carInsurance.insuranceNum=:insuranceNum and O.carInsuranceRepayment.currentPeriod=:currentPeriod order by O.carInsuranceRepayment.currentPeriod asc")
+})
 public class CarInsuranceFee extends UUIDEntity {
 
     /**
