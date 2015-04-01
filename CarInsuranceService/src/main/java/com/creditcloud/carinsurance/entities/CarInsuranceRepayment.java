@@ -106,7 +106,7 @@ public class CarInsuranceRepayment extends UUIDEntity {
     @Column(nullable = false,
 	    precision = 15,
 	    scale = 2)
-    private BigDecimal amountBreach;
+    private BigDecimal amountBreach=BigDecimal.ZERO;
 
     //还款状态
     @Enumerated(EnumType.STRING)

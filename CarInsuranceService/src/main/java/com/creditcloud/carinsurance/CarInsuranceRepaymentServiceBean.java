@@ -293,14 +293,32 @@ public class CarInsuranceRepaymentServiceBean implements CarInsuranceRepaymentSe
 	if (repayment != null) {
 	    //计算提还违约金 提还违约金=应还本金*费率(0.2%)
 	    BigDecimal breachRate = configManager.getCarInsuranceConfig().getAdvanceBreachFee().getRate();
-	    BigDecimal breachAmount = repayment.getAmountPrincipal().multiply(breachRate);
+	    BigDecimal breachAmount = BigDecimal.ZERO;
 	    penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
 	    //车险分期的保单记录 如果是最后一期 则需要修改状态为已还清
 	    CarInsurance carInsurance = repayment.getCarInsurance();
+	    //计算已还金额
+	    List<CarInsuranceRepayment> repaymentRepayeds = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
+	    //计算出已还清的金额 
+	    BigDecimal repayedAmount = BigDecimal.ZERO;
+	    for (CarInsuranceRepayment repayed : repaymentRepayeds) {
+		if(repayment.getStatus() == CarInsuranceStatus.CLEARED) {
+		    //统计已还清的金额
+		    repayedAmount = repayedAmount.add(repayed.getAmountPrincipal());
+		}
+	    }
+	    //计算剩余本金 principal = ( 借款总额-已还金额)
+	    BigDecimal principal = carInsurance.getAmount().subtract(repayedAmount);
+	    if (repayment.getCurrentPeriod() == carInsurance.getDuration()) {
+		//违约金=计算剩余本金*0.2%
+		logger.debug("this repayment is last period :{}",repayment);
+		breachAmount = principal.multiply(breachRate);
+	    }
 	    switch (repayment.getStatus()) {
 		case INITIATED:
 		    break;
 		case PAYING:
+
 		    repayment.setRepayDate(new Date());
 		    repayment.setAmountBreach(breachAmount);
 		    //1 把实还金额修改当前应还金额 如果有预期罚金的 
