@@ -108,7 +108,7 @@ public class ConfigManagerBean
     @PostConstruct
     void init() {
 	try {
-	    this.context = JAXBContext.newInstance(new Class[]{ClientConfig.class, SMSConfig.class, EmailConfig.class, UpYunConfig.class, DeviceManagerConfig.class, PaymentConfig.class, CreditManagerConfig.class, FeeConfig.class, CertificateConfig.class, AllWinConfig.class, GuaranteeConfig.class, RewardConfig.class, FuiouConfig.class, UmpConfig.class, RedisConfig.class, SentinelConfig.class, ContractSealConfig.class, CacheConfig.class,CarInsuranceConfig.class});
+	    this.context = JAXBContext.newInstance(new Class[]{ClientConfig.class, SMSConfig.class, EmailConfig.class, UpYunConfig.class, DeviceManagerConfig.class, PaymentConfig.class, CreditManagerConfig.class, FeeConfig.class, CertificateConfig.class, AllWinConfig.class, GuaranteeConfig.class, RewardConfig.class, FuiouConfig.class, UmpConfig.class, RedisConfig.class, SentinelConfig.class, ContractSealConfig.class, CacheConfig.class, CarInsuranceConfig.class,InsuredConfig.class});
 
 	    this.unmarshaller = this.context.createUnmarshaller();
 	} catch (Exception ex) {
@@ -174,5 +174,9 @@ public class ConfigManagerBean
 
     public CarInsuranceConfig getCarInsuranceConfig() {
 	return (CarInsuranceConfig) loadConfig(CarInsuranceConfig.class);
+    }
+    
+    public InsuredConfig getInsuredConfig() {
+	return (InsuredConfig) loadConfig(InsuredConfig.class);
     }
 }
