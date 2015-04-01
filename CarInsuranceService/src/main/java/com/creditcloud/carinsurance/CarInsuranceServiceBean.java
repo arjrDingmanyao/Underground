@@ -369,8 +369,8 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	//计算应还本金 principal =  借款总额-已还金额
 	BigDecimal principal = carInsurance.getAmount().subtract(repayedAmount);
 	//计算提还违约金 提还违约金=应还本金*费率(0.2%)
-	BigDecimal penaltyRate = new BigDecimal(0.02);
-	BigDecimal penalty = principal.multiply(penaltyRate);
+	BigDecimal breachRate = configManager.getCarInsuranceConfig().getAdvanceBreachFee().getRate();
+	BigDecimal penalty = principal.multiply(breachRate);
 
 	CarInsuranceRepayDetail repayDetail = new CarInsuranceRepayDetail(principal, repaymentModels, penalty);
 
