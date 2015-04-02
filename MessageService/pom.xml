@@ -55,6 +55,13 @@
 	    <version>2.5.0</version>
 	    <scope>provided</scope>
 	</dependency>
+	<!--指定jdk版本否则出错-->
+	<dependency>  
+	    <groupId>net.sf.json-lib</groupId>  
+	    <artifactId>json-lib</artifactId>  
+	    <version>2.4</version>  
+	    <classifier>jdk15</classifier>
+	</dependency>
     </dependencies>
 
     <build>
