@@ -64,22 +64,19 @@ public class PushMessageServiceBean implements PushMessageService {
     public void repayPush(String title, String content, List<String> userIds) {
 	logger.debug("PushMessageServiceBean repayPush");
 	LoanRepayPush push = configManager.getClientConfig().getLoanRepayPush();
-	String url = push.getUrl();
 	String result = "";
-	JSONObject jsonObject = new JSONObject();
-	jsonObject.put("pushType", "2");
-	jsonObject.put("pushContent", "还款到账!");
-	JSONArray pushGroupArray = new JSONArray();
+	StringBuffer userIdBuffer=new StringBuffer();
 	//循环用户的ID
 	for (String userId : userIds) {
-	    JSONObject objectPush = new JSONObject();
-	    objectPush.put("userIdentifier", userId);
-	    pushGroupArray.add(objectPush);
+	    userIdBuffer.append("{\"userIdentifier\":\""+userId+"\"},");
 	}
+	//去掉，号
+	String pushGroup = userIdBuffer.deleteCharAt(userIdBuffer.length()-1).toString();
+	String json="{\"pushType\":\"2\",\"pushContent\":\""+ content + "\",\"pushGroup\":["+pushGroup+"]}";
+	logger.debug("PushMessageServiceBean repayPush json :{}", json);
 	logger.debug("PushMessageServiceBean repayPush User count :{}", userIds.size());
-	jsonObject.put("pushGroup", pushGroupArray);
 	try {
-	    result = send(url, jsonObject.toString(), CONTENT_TYPE_JSON_UTF_8);
+	    result = send(push.getUrl(),json, CONTENT_TYPE_JSON_UTF_8);
 	} catch (Exception e) {
 	    logger.error("还款到账消息推送：\n{}", e);
 	}
