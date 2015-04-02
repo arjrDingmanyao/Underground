@@ -14,6 +14,7 @@ import com.creditcloud.carinsurance.entities.dao.CarInsuranceDAO;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceFeeDAO;
 import com.creditcloud.carinsurance.entities.dao.CarInsuranceRepaymentDAO;
 import com.creditcloud.carinsurance.local.ApplicationBean;
+import com.creditcloud.carinsurance.local.CarInsuranceFeeLocalBean;
 import com.creditcloud.carinsurance.model.CarInsuranceModel;
 import com.creditcloud.carinsurance.model.CarInsuranceRepayDetail;
 import com.creditcloud.carinsurance.model.CarInsuranceRepaymentModel;
@@ -70,6 +71,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 
     @EJB
     private ConfigManager configManager;
+
+    @EJB
+    private CarInsuranceFeeLocalBean carInsuranceFeeLocalBean;
 
     /**
      * 根据车险分期的 时间和状态查询数据
@@ -154,32 +158,8 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    //1 计算出还款时间
 	    Date dueDate = DateUtils.offset(new Date(), new CarInsuranceDuration(0, i, 0));
 	    CarInsuranceRepayment repayment;
-	    if (i == 3) {
-		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(2)));
-		repayment = new CarInsuranceRepayment(
-			new BigDecimal(0),
-			carInsurance,
-			i,
-			dueDate,
-			lastAmountPrincipal,
-			CarInsuranceStatus.PAYING,
-			new BigDecimal(0));
-		//保存还款计划到数据库
-		carInsuranceRepaymentDAO.create(repayment);
-	    } else if (i == 6) {
-		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(5)));
-		repayment = new CarInsuranceRepayment(
-			new BigDecimal(0),
-			carInsurance,
-			i,
-			dueDate,
-			lastAmountPrincipal,
-			CarInsuranceStatus.PAYING,
-			new BigDecimal(0));
-		//保存还款计划到数据库
-		carInsuranceRepaymentDAO.create(repayment);
-	    } else if (i == 10) {
-		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(9)));
+	    if (i == carInsurance.getDuration()) {
+		BigDecimal lastAmountPrincipal = firstValue.subtract(amountPrincipal.multiply(new BigDecimal(carInsurance.getDuration() - 1)));
 		repayment = new CarInsuranceRepayment(
 			new BigDecimal(0),
 			carInsurance,
@@ -240,13 +220,13 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	//1 修改车险还款为已还清
 	CarInsurance carInsurance = carInsuranceDAO.find(id);
 	//2 修改该分期所有的还款计划为已还清 并添加费用
-	if (carInsurance != null && carInsurance.getCarInsuranceStatus().equals("PAYING")) {
+	if (carInsurance != null && carInsurance.getCarInsuranceStatus().equals(CarInsuranceStatus.PAYING)) {
 	    List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
 	    for (CarInsuranceRepayment repayment : repayments) {
 		switch (repayment.getStatus()) {
 		    case PAYING:
 			//判断如果是还款中的状态才可以还款
-			carInsuranceRepaymentService.repay(repayment.getId());
+			carInsuranceRepaymentService.advanceRepay(repayment.getId());
 			break;
 		    case CANCELED:
 			logger.debug("该车险还款计划已还清repayment: {}", repayment);
@@ -258,7 +238,7 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	    }
 	    bool = true;
 	} else {
-	    logger.debug("该车险分期不存在或者已还清 {}", id);
+	    logger.debug("该车险分期不存在或者已还清 {},状态 {}", id, carInsurance.getCarInsuranceStatus());
 	}
 	return bool;
     }
@@ -327,6 +307,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
     public CarInsuranceRepaymentModel listCarInsuranceRepaymentById(String id) {
 
 	CarInsuranceRepayment repayment = carInsuranceRepaymentDAO.find(id);
+	//计算逾期罚息
+	BigDecimal penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+	repayment.setAmountInterest(penaltyAmount);
 	User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 	CarInsuranceRepaymentModel model = CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user);
 
@@ -346,6 +329,9 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	List<CarInsuranceRepayment> repayments = carInsuranceRepaymentDAO.listByCarInsurance(carInsurance);
 	List<CarInsuranceRepaymentModel> result = new ArrayList<>(repayments.size());
 	for (CarInsuranceRepayment repayment : repayments) {
+	    //计算逾期罚息
+	    BigDecimal penaltyAmount = carInsuranceFeeLocalBean.overdueFee(repayment);
+	    repayment.setAmountInterest(penaltyAmount);
 	    User user = userService.findByUserId(appBean.getClientCode(), repayment.getCarInsurance().getUserId());
 	    result.add(CarInsuranceDTOUtils.convertCarInsuranceRepaymentDTO(repayment, user));
 	}
@@ -383,8 +369,8 @@ public class CarInsuranceServiceBean implements CarInsuranceService {
 	//计算应还本金 principal =  借款总额-已还金额
 	BigDecimal principal = carInsurance.getAmount().subtract(repayedAmount);
 	//计算提还违约金 提还违约金=应还本金*费率(0.2%)
-	BigDecimal penaltyRate = new BigDecimal(0.002);
-	BigDecimal penalty = principal.multiply(penaltyRate);
+	BigDecimal breachRate = configManager.getCarInsuranceConfig().getAdvanceBreachFee().getRate();
+	BigDecimal penalty = principal.multiply(breachRate);
 
 	CarInsuranceRepayDetail repayDetail = new CarInsuranceRepayDetail(principal, repaymentModels, penalty);
 
