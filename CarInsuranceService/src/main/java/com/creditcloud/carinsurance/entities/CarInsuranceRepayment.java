@@ -103,7 +103,7 @@ public class CarInsuranceRepayment extends UUIDEntity {
 
     //提还违约金
     @Min(0)
-    @Column(nullable = false,
+    @Column(nullable = true,
 	    precision = 15,
 	    scale = 2)
     private BigDecimal amountBreach=BigDecimal.ZERO;
