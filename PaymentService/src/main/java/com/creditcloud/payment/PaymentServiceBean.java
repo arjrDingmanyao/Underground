@@ -58,12 +58,15 @@ import com.creditcloud.payment.model.chinapnr.query.AccountDetail;
 import com.creditcloud.payment.model.chinapnr.query.AcctsQueryRequest;
 import com.creditcloud.payment.model.chinapnr.query.AcctsQueryResponse;
 import com.creditcloud.payment.model.chinapnr.query.BalanceQueryResponse;
+import com.creditcloud.payment.model.chinapnr.query.CardInfo;
 import com.creditcloud.payment.model.chinapnr.query.CorpRegisterQueryRequest;
 import com.creditcloud.payment.model.chinapnr.query.CorpRegisterQueryResponse;
 import com.creditcloud.payment.model.chinapnr.query.FssAccountQueryRequest;
 import com.creditcloud.payment.model.chinapnr.query.FssAccountQueryResponse;
 import com.creditcloud.payment.model.chinapnr.query.FssProductQueryRequest;
 import com.creditcloud.payment.model.chinapnr.query.FssProductQueryResponse;
+import com.creditcloud.payment.model.chinapnr.query.QueryCardInfoRequest;
+import com.creditcloud.payment.model.chinapnr.query.QueryCardInfoResponse;
 import com.creditcloud.payment.model.chinapnr.query.TransStatQueryRequest;
 import com.creditcloud.payment.model.chinapnr.query.TransStatQueryResponse;
 import com.creditcloud.payment.model.chinapnr.tender.AutoTenderQueryResponse;
@@ -227,6 +230,7 @@ public class PaymentServiceBean
         return result;
     }
 
+    @Override
     public PaymentResult deleteCard(String clientCode, String userId, String cardId) {
         this.appBean.checkClientCode(clientCode);
         com.creditcloud.payment.entities.PaymentAccount account = this.paymentAccountDAO.getByUserId(clientCode, userId);
@@ -240,6 +244,22 @@ public class PaymentServiceBean
             }
         }
         return PaymentResult.ACCOUNT_NOT_FOUND;
+    }
+    
+    @Override
+    public boolean queryCardIsDefault(String clientCode, String userId, String cardId) {
+        this.appBean.checkClientCode(clientCode);
+        com.creditcloud.payment.entities.PaymentAccount account = this.paymentAccountDAO.getByUserId(clientCode, userId);
+        if (account != null) {
+            QueryCardInfoRequest request = new QueryCardInfoRequest(this.paymentConfig.getMerCustId(), account.getAccountId(), cardId);
+
+            request.setChkValue(getChkValue(clientCode, request));
+            QueryCardInfoResponse response = (QueryCardInfoResponse) getResponse(request, QueryCardInfoResponse.class);
+            if (verifyResponse(clientCode, response) == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public PaymentResult autoTender(String clientCode, String userId, BigDecimal amount, String orderId, List<BorrowerDetail> borrowerDetails, String BgRetUrl, String merPriv) {

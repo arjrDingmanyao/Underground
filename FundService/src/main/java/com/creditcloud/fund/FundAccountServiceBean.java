@@ -145,6 +145,13 @@ public class FundAccountServiceBean implements FundAccountService {
     }
     
     @Override
+    public com.creditcloud.fund.model.FundAccount findById(String clientCode, String id) {
+        appBean.checkClientCode(clientCode);
+        FundAccount result = accountDAO.find(id);
+        return DTOUtils.getFundAccount(result);
+    }
+    
+    @Override
     public com.creditcloud.fund.model.FundAccount getDefaultByUser(String clientCode, String userId) {
         List<com.creditcloud.fund.model.FundAccount> accounts = listAccountByUser(clientCode, userId);
         for (com.creditcloud.fund.model.FundAccount fundAccount : accounts) {
