@@ -802,4 +802,18 @@ public class UserServiceBean implements UserService {
 	return DTOUtils.getSocialUser(socialUserDAO.listByUserId(userId));
     }
 
+    @Override
+    public boolean foundPassword(String clientCode, String loginName, String newPassword) {
+        appBean.checkClientCode(clientCode);
+	logger.debug("found password for user.[clientCode={}][loginName={}]", clientCode, loginName);
+	User user = userDAO.findByLoginName(loginName);
+	if (user == null) {
+	    logger.warn("user with loginName {} not found", loginName);
+	    return false;
+	}
+	user.password(newPassword);
+	userDAO.edit(user);
+	return true;
+    }
+
 }
