@@ -36,5 +36,6 @@
 	<module>PaymentService</module>
 	<module>CarInsuranceService</module>
     <module>ConfigService</module>
+    <module>RedisService</module>
   </modules>
 </project>
