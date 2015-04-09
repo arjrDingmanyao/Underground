@@ -22,6 +22,7 @@ import static com.creditcloud.sms.SMSType.NOTIFICATION_CREDITMANAGER_EMPLOYEE_CR
 import static com.creditcloud.sms.SMSType.NOTIFICATION_CREDITMARKET_USER_CREATED;
 import static com.creditcloud.sms.SMSType.NOTIFICATION_LOANREQUEST_STATUS;
 import static com.creditcloud.sms.SMSType.NOTIFICATION_LOAN_STATUS;
+import com.creditcloud.sms.api.SMSMessageService;
 import com.creditcloud.sms.api.SMSService;
 import com.creditcloud.sms.dao.SMSBlackListDAO;
 import com.creditcloud.sms.entities.SMSBlackList;
@@ -64,7 +65,7 @@ public class SMSServiceBean implements SMSService {
 
     @EJB
     ConfigManager configManager;
-    
+
     @EJB
     SMSBlackListDAO smsBlackListDao;
 
@@ -72,6 +73,9 @@ public class SMSServiceBean implements SMSService {
      * SMS gateway config
      */
     private SMSConfig config;
+
+    @EJB
+    private SMSMessageService smsMessageService;
 
     @PostConstruct
     void init() {
@@ -81,119 +85,123 @@ public class SMSServiceBean implements SMSService {
     @Asynchronous
     @Override
     public void sendMessage(Client client, SMSType type, String mobile, String... contents) {
-        boolean flag = true;
-        List<SMSBlackList> smsBlackList = smsBlackListDao.findAll();
-        for(SMSBlackList sb : smsBlackList){
-            if(mobile.trim().equals(sb.getNumber().trim())){
-                flag = false;
-                logger.info(mobile+" in blackList.");
-            }else{
-                
-            }
-        }
-        if(flag){
-            //微米发送短信只需要发送数字验证码，平台自动绑定模版
-            if ("weimi".equalsIgnoreCase(config.getPlatform())) {
-                sendSMS(mobile, type, client, contents);
-            } else if ("zucp".equalsIgnoreCase(config.getPlatform())) {
-                ResourceBundle resourceBundle = ResourceBundle.getBundle("com.creditcloud.sms.messages", client.getLocale());
-                String contentTemplate = resourceBundle.getString(type.getKey());
-                switch (type) {
-                    case CONFIRM_CREDITMARKET_REGISTER:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CONFIRM_CREDITMARKET_CHANGE_LOGIN_PASSWORD:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CREDITMARKET_RESET_PASSWORD:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CONFIRM_CREDITMARKET_AUTHENTICATE_MOBILE:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CREDITMANAGER_MESSAGE:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CREDITMANAGER_RESET_PASSWORD:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case NOTIFICATION_CREDITMANAGER_EMPLOYEE_CREATED:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_CREDITMARKET_USER_CREATED:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_LOANREQUEST_STATUS:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_LOAN_STATUS:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_LOAN_REPAY:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2], client.getShortName(), contents[3]));
-                        break;
-                    case NOTIFICATION_LOAN_CLEARED:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1]));
-                        break;
-                    case NOTIFICATION_WITHDRAW_APPLY:
-                        sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0], contents[1], contents[2]));
-                        break;
+	boolean flag = true;
 
-                    default:
-                    //do nothing
-                }
-            } else {
-                ResourceBundle resourceBundle = ResourceBundle.getBundle("com.creditcloud.sms.messages", client.getLocale());
-                String contentTemplate = resourceBundle.getString(type.getKey());
-                //企信港发送短信，需要在发送内容处加上签名，否则无法发送。
-                if ("qixingang".equals(config.getPlatform())) {
-                    contentTemplate = "【安润金融】" + contentTemplate;
-                }
-                switch (type) {
-                    case CONFIRM_CREDITMARKET_REGISTER:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CONFIRM_CREDITMARKET_CHANGE_LOGIN_PASSWORD:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CREDITMARKET_RESET_PASSWORD:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CONFIRM_CREDITMARKET_AUTHENTICATE_MOBILE:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CREDITMANAGER_MESSAGE:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case CREDITMANAGER_RESET_PASSWORD:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
-                        break;
-                    case NOTIFICATION_CREDITMANAGER_EMPLOYEE_CREATED:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_CREDITMARKET_USER_CREATED:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_LOANREQUEST_STATUS:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_LOAN_STATUS:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
-                        break;
-                    case NOTIFICATION_LOAN_REPAY:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2], client.getShortName(), contents[3]));
-                        break;
-                    case NOTIFICATION_LOAN_CLEARED:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1]));
-                        break;
-                    case NOTIFICATION_WITHDRAW_APPLY:
-                        sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0], contents[1], contents[2]));
-                        break;
-                    default:
-                    //do nothing
-                }
-            }
-        }
+	//添加短信日志记录
+	smsMessageService.addRecord(type, mobile, contents);
+
+	List<SMSBlackList> smsBlackList = smsBlackListDao.findAll();
+	for (SMSBlackList sb : smsBlackList) {
+	    if (mobile.trim().equals(sb.getNumber().trim())) {
+		flag = false;
+		logger.info(mobile + " in blackList.");
+	    } else {
+
+	    }
+	}
+	if (flag) {
+	    //微米发送短信只需要发送数字验证码，平台自动绑定模版
+	    if ("weimi".equalsIgnoreCase(config.getPlatform())) {
+		sendSMS(mobile, type, client, contents);
+	    } else if ("zucp".equalsIgnoreCase(config.getPlatform())) {
+		ResourceBundle resourceBundle = ResourceBundle.getBundle("com.creditcloud.sms.messages", client.getLocale());
+		String contentTemplate = resourceBundle.getString(type.getKey());
+		switch (type) {
+		    case CONFIRM_CREDITMARKET_REGISTER:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CONFIRM_CREDITMARKET_CHANGE_LOGIN_PASSWORD:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CREDITMARKET_RESET_PASSWORD:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CONFIRM_CREDITMARKET_AUTHENTICATE_MOBILE:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CREDITMANAGER_MESSAGE:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CREDITMANAGER_RESET_PASSWORD:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case NOTIFICATION_CREDITMANAGER_EMPLOYEE_CREATED:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_CREDITMARKET_USER_CREATED:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_LOANREQUEST_STATUS:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_LOAN_STATUS:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_LOAN_REPAY:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2], client.getShortName(), contents[3]));
+			break;
+		    case NOTIFICATION_LOAN_CLEARED:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, contents[0], contents[1]));
+			break;
+		    case NOTIFICATION_WITHDRAW_APPLY:
+			sendSMSViaZucp(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0], contents[1], contents[2]));
+			break;
+
+		    default:
+		    //do nothing
+		}
+	    } else {
+		ResourceBundle resourceBundle = ResourceBundle.getBundle("com.creditcloud.sms.messages", client.getLocale());
+		String contentTemplate = resourceBundle.getString(type.getKey());
+		//企信港发送短信，需要在发送内容处加上签名，否则无法发送。
+		if ("qixingang".equals(config.getPlatform())) {
+		    contentTemplate = "【安润金融】" + contentTemplate;
+		}
+		switch (type) {
+		    case CONFIRM_CREDITMARKET_REGISTER:
+			sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CONFIRM_CREDITMARKET_CHANGE_LOGIN_PASSWORD:
+			sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CREDITMARKET_RESET_PASSWORD:
+			sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CONFIRM_CREDITMARKET_AUTHENTICATE_MOBILE:
+			sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CREDITMANAGER_MESSAGE:
+			sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case CREDITMANAGER_RESET_PASSWORD:
+			sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0]));
+			break;
+		    case NOTIFICATION_CREDITMANAGER_EMPLOYEE_CREATED:
+			sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_CREDITMARKET_USER_CREATED:
+			sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_LOANREQUEST_STATUS:
+			sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_LOAN_STATUS:
+			sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2]));
+			break;
+		    case NOTIFICATION_LOAN_REPAY:
+			sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1], contents[2], client.getShortName(), contents[3]));
+			break;
+		    case NOTIFICATION_LOAN_CLEARED:
+			sendSMS(mobile, type, client, String.format(contentTemplate, contents[0], contents[1]));
+			break;
+		    case NOTIFICATION_WITHDRAW_APPLY:
+			sendSMS(mobile, type, client, String.format(contentTemplate, client.getShortName(), contents[0], contents[1], contents[2]));
+			break;
+		    default:
+		    //do nothing
+		}
+	    }
+	}
     }
 
     /**
