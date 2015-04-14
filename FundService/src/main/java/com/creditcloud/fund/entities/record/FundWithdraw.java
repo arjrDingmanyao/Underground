@@ -83,6 +83,7 @@ public class FundWithdraw extends FundRecord {
 	    BigDecimal amount,
 	    String orderId,
 	    String transactionId,
+	    BigDecimal availableAmount,
 	    String description) {
 	super(fund,
 		account,
@@ -93,6 +94,7 @@ public class FundWithdraw extends FundRecord {
 		amount,
 		orderId,
 		transactionId,
+		availableAmount,
 		description);
     }
 }

@@ -30,6 +30,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.persistence.annotations.Index;
@@ -143,6 +144,18 @@ public class FundRecord extends RecordScopeEntity {
      * 交易流水号, 对应汇付接口中的TrxId
      */
     protected String transactionId;
+    
+    /**
+     * 记录账户余额
+     */
+    @Getter
+    @Setter
+    @Min(0)
+    @Column(name = "AVAILABLE_AMOUNT",
+            nullable = false,
+            precision = 15,
+            scale = 2)
+    private BigDecimal availableAmount;
 
     /**
      * 可能为失败的提示信息
@@ -172,6 +185,7 @@ public class FundRecord extends RecordScopeEntity {
 	    BigDecimal amount,
 	    String orderId,
 	    String transactionId,
+	    BigDecimal availableAmount,
 	    String description) {
 	this.fund = fund;
 	this.account = account;
@@ -182,6 +196,7 @@ public class FundRecord extends RecordScopeEntity {
 	this.amount = amount;
 	this.orderId = orderId;
 	this.transactionId = transactionId;
+	this.availableAmount = availableAmount;
 	this.description = description;
     }
 
@@ -291,5 +306,6 @@ public class FundRecord extends RecordScopeEntity {
     public void setAccount(FundAccount account) {
 	this.account = account;
     }
+    
 
 }
