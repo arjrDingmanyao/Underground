@@ -63,22 +63,26 @@ public class PushMessageServiceBean implements PushMessageService {
 	logger.debug("PushMessageServiceBean repayPush");
 	LoanRepayPush push = configManager.getClientConfig().getLoanRepayPush();
 	String result = "";
-	StringBuffer userIdBuffer=new StringBuffer();
+	StringBuffer userIdBuffer = new StringBuffer();
 	//循环用户的ID
 	for (String userId : userIds) {
-	    userIdBuffer.append("{\"userIdentifier\":\""+userId+"\"},");
+	    userIdBuffer.append("{\"userIdentifier\":\"" + userId + "\"},");
 	}
-	//去掉，号
-	String pushGroup = userIdBuffer.deleteCharAt(userIdBuffer.length()-1).toString();
-	String json="{\"pushType\":\"2\",\"pushContent\":\""+ content + "\",\"pushGroup\":["+pushGroup+"]}";
-	logger.debug("PushMessageServiceBean repayPush json :{}", json);
-	logger.debug("PushMessageServiceBean repayPush User count :{}", userIds.size());
-	try {
-	    result = send(push.getUrl(),json, CONTENT_TYPE_JSON_UTF_8);
-	} catch (Exception e) {
-	    logger.error("还款到账消息推送：\n{}", e);
+	//先判断推送用户数是否不为零
+	if (userIds != null && userIds.size() > 0) {
+	    logger.debug("还款到账消息推送：{}", result);
+	    String pushGroup = userIdBuffer.deleteCharAt(userIdBuffer.length() - 1).toString();
+	    String json = "{\"pushType\":\"2\",\"pushContent\":\"" + content + "\",\"pushGroup\":[" + pushGroup + "]}";
+	    logger.debug("PushMessageServiceBean repayPush json :{}", json);
+	    logger.debug("PushMessageServiceBean repayPush User count :{}", userIds.size());
+	    try {
+		result = send(push.getUrl(), json, CONTENT_TYPE_JSON_UTF_8);
+	    } catch (Exception e) {
+		logger.error("还款到账消息推送：\n{}", e);
+	    }
+	} else {
+	    logger.info("还款到账消息推送失败,没有可推送的用户");
 	}
-	logger.debug("还款到账消息推送：{}", result);
     }
 
     /**
