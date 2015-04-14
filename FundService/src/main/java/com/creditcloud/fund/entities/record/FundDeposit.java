@@ -36,6 +36,7 @@ public class FundDeposit extends FundRecord {
                        BigDecimal amount,
                        String orderId,
                        String transactionId,
+		       BigDecimal availableAmount,
                        String description) {
         super(fund,
               account,
@@ -46,6 +47,7 @@ public class FundDeposit extends FundRecord {
               amount,
               orderId,
               transactionId,
+	      availableAmount,
               description);
     }
 

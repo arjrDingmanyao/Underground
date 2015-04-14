@@ -396,13 +396,13 @@ public class FundRecordServiceBean implements FundRecordService {
 		new RealmEntity(Realm.INVEST, investId),
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.OUT,
-		investAmount, orderId, null, null));
+		investAmount, orderId, null,investFund.getAvailableAmount(), null));
 	//贷款放款记录
 	recordDAO.create(new FundLoan(loanFund,
 		new RealmEntity(Realm.LOAN, loanId),
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
-		investAmount, orderId, null, null));
+		investAmount, orderId, null,loanFund.getAvailableAmount(), null));
 
 	for (Map.Entry<FundRecordType, BigDecimal> entry : feeDetails.entrySet()) {
 	    BigDecimal fee = entry.getValue().setScale(2, NumberConstant.ROUNDING_MODE);
@@ -419,7 +419,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				entry.getKey(),
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
-				fee, orderId, null, null));
+				fee, orderId, null,loanFund.getAvailableAmount(), null));
 			//商户收费记录
 			clientRecordDAO.create(new ClientFundRecord(appBean.getPaymentConfig().getFeeAccount().getAccountId(),
 				new RealmEntity(Realm.LOAN, loanId),
@@ -442,7 +442,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				entry.getKey(),
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
-				fee, orderId, null, null));
+				fee, orderId, null,loanFund.getAvailableAmount(), null));
 			//商户保证金记录
 			clientRecordDAO.create(new ClientFundRecord(appBean.getPaymentConfig().getGuaranteeAccount().getAccountId(),
 				new RealmEntity(Realm.LOAN, loanId),
@@ -474,13 +474,13 @@ public class FundRecordServiceBean implements FundRecordService {
 		new RealmEntity(Realm.INVEST, investId),
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.OUT,
-		investAmount, orderId, null, null));
+		investAmount, orderId, null,investFund.getAvailableAmount(), null));
 	//贷款放款记录
 	recordDAO.create(new FundLoan(loanFund,
 		new RealmEntity(Realm.LOAN, loanId),
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
-		investAmount, orderId, null, null));
+		investAmount, orderId, null,loanFund.getAvailableAmount(), null));
 
 	for (Map.Entry<FundRecordType, ImmutablePair<String, BigDecimal>> entry : feeDetails.entrySet()) {
 	    BigDecimal fee = entry.getValue().getRight().setScale(2, NumberConstant.ROUNDING_MODE);
@@ -497,7 +497,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				entry.getKey(),
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
-				fee, orderId, null, null));
+				fee, orderId, null,loanFund.getAvailableAmount(), null));
 			//商户收费记录
 			clientRecordDAO.create(new ClientFundRecord(entry.getValue().getLeft(),
 				new RealmEntity(Realm.LOAN, loanId),
@@ -520,7 +520,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				entry.getKey(),
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
-				fee, orderId, null, null));
+				fee, orderId, null,loanFund.getAvailableAmount(), null));
 			//商户保证金记录
 			clientRecordDAO.create(new ClientFundRecord(entry.getValue().getLeft(),
 				new RealmEntity(Realm.LOAN, loanId),
@@ -554,6 +554,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		investAmount,
 		orderId,
 		null,
+		investFund.getAvailableAmount(),
 		null));
 	for (Map.Entry<FundRecordType, ImmutablePair<String, BigDecimal>> entry : feeDetails.entrySet()) {
 	    BigDecimal fee = entry.getValue().getRight().setScale(2, NumberConstant.ROUNDING_MODE);
@@ -621,6 +622,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		    refundAmount,
 		    refundOrderId,
 		    null,
+		    loanFund.getAvailableAmount(),
 		    null));
 	}
 
@@ -646,7 +648,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordOperation.OUT,
 				fee,
 				orderId,
-				null,
+				null,loanFund.getAvailableAmount(),
 				null));
 			clientRecordDAO.create(new ClientFundRecord(account,
 				new RealmEntity(Realm.LOAN, loanId),
@@ -695,7 +697,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordOperation.IN,
 				fee,
 				orderId,
-				null,
+				null,investFund.getAvailableAmount(),
 				null));
 		    }
 		    break;
@@ -721,13 +723,13 @@ public class FundRecordServiceBean implements FundRecordService {
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
 		repayAmount,
-		orderId, null, periodDesc));
+		orderId, null,investFund.getAvailableAmount(), periodDesc));
 	recordDAO.create(new FundLoanRepay(loanFund,
 		new RealmEntity(Realm.LOAN, loanId),
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.OUT,
 		repayAmount,
-		orderId, null, periodDesc));
+		orderId, null,loanFund.getAvailableAmount(), periodDesc));
 
 	for (Map.Entry<FundRecordType, BigDecimal> entry : feeDetails.entrySet()) {
 	    BigDecimal fee = entry.getValue().setScale(2, NumberConstant.ROUNDING_MODE);
@@ -749,7 +751,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
 				fee,
-				orderId, null,
+				orderId, null,loanFund.getAvailableAmount(),
 				periodDesc));
 			//商户收费记录
 			clientRecordDAO.create(new ClientFundRecord(appBean.getPaymentConfig().getFeeAccount().getAccountId(),
@@ -774,7 +776,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
 				fee,
-				orderId, null,
+				orderId, null,investFund.getAvailableAmount(),
 				periodDesc));
 			//商户收费记录
 			clientRecordDAO.create(new ClientFundRecord(appBean.getPaymentConfig().getFeeAccount().getAccountId(),
@@ -800,7 +802,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
 				fee,
-				orderId, null,
+				orderId, null,loanFund.getAvailableAmount(),
 				periodDesc));
 			//投资人收入
 			recordDAO.create(new FundFee(investFund,
@@ -809,7 +811,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.IN,
 				fee,
-				orderId, null,
+				orderId, null,investFund.getAvailableAmount(),
 				periodDesc));
 		    }
 		    break;
@@ -836,13 +838,13 @@ public class FundRecordServiceBean implements FundRecordService {
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
 		repayAmount,
-		orderId, null, periodDesc));
+		orderId, null,investFund.getAvailableAmount(), periodDesc));
 	recordDAO.create(new FundLoanRepay(loanFund,
 		new RealmEntity(Realm.LOAN, loanId),
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.OUT,
 		repayAmount,
-		orderId, null, periodDesc));
+		orderId, null,loanFund.getAvailableAmount(), periodDesc));
 
 	for (Map.Entry<FundRecordType, ImmutablePair<String, BigDecimal>> entry : feeDetails.entrySet()) {
 	    BigDecimal fee = entry.getValue().getRight().setScale(2, NumberConstant.ROUNDING_MODE);
@@ -864,7 +866,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
 				fee,
-				orderId, null,
+				orderId, null,loanFund.getAvailableAmount(),
 				periodDesc));
 			//商户收费记录
 			clientRecordDAO.create(new ClientFundRecord(entry.getValue().getLeft(),
@@ -889,7 +891,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
 				fee,
-				orderId, null,
+				orderId, null,investFund.getAvailableAmount(),
 				periodDesc));
 			//商户收费记录
 			clientRecordDAO.create(new ClientFundRecord(entry.getValue().getLeft(),
@@ -915,7 +917,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
 				fee,
-				orderId, null,
+				orderId, null,loanFund.getAvailableAmount(),
 				periodDesc));
 			//投资人收入
 			recordDAO.create(new FundFee(investFund,
@@ -924,7 +926,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.IN,
 				fee,
-				orderId, null,
+				orderId, null,investFund.getAvailableAmount(),
 				periodDesc));
 		    }
 		    break;
@@ -951,7 +953,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
 		repayAmount,
-		orderId, null, periodDesc));
+		orderId, null,investFund.getAvailableAmount() ,periodDesc));
 	//不记录还款者的记录，已经在其还款至标的时记录
 //        recordDAO.create(new FundLoanRepay(loanFund,
 //                                           new RealmEntity(Realm.LOAN, loanId),
@@ -1006,7 +1008,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.OUT,
 				fee,
-				orderId, null,
+				orderId, null,investFund.getAvailableAmount(),
 				periodDesc));
 			//商户收费记录
 			clientRecordDAO.create(new ClientFundRecord(entry.getValue().getLeft(),
@@ -1042,7 +1044,7 @@ public class FundRecordServiceBean implements FundRecordService {
 				FundRecordStatus.SUCCESSFUL,
 				FundRecordOperation.IN,
 				fee,
-				orderId, null,
+				orderId, null,investFund.getAvailableAmount(),
 				periodDesc));
 		    }
 		    break;
@@ -1068,7 +1070,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
 		repayAmount,
-		orderId, null, periodDesc));
+		orderId, null,investFund.getAvailableAmount(), periodDesc));
 	//商户风险金账户垫付还款
 	clientRecordDAO.create(new ClientFundRecord(appBean.getPaymentConfig().getGuaranteeAccount().getAccountId(),
 		new RealmEntity(Realm.INVEST, investId),
@@ -1089,7 +1091,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		    FundRecordStatus.SUCCESSFUL,
 		    FundRecordOperation.OUT,
 		    investFee,
-		    orderId, null,
+		    orderId, null,investFund.getAvailableAmount(),
 		    periodDesc));
 	    //收费账户入账
 	    clientRecordDAO.create(new ClientFundRecord(appBean.getPaymentConfig().getFeeAccount().getAccountId(),
@@ -1118,7 +1120,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
 		repayAmount.getRight(),
-		orderId, null, periodDesc));
+		orderId, null,investFund.getAvailableAmount(), periodDesc));
 	//商户风险金账户垫付还款
 	clientRecordDAO.create(new ClientFundRecord(repayAmount.getLeft(),
 		new RealmEntity(Realm.INVEST, investId),
@@ -1139,7 +1141,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		    FundRecordStatus.SUCCESSFUL,
 		    FundRecordOperation.OUT,
 		    investFee,
-		    orderId, null,
+		    orderId, null,investFund.getAvailableAmount(),
 		    periodDesc));
 	    //收费账户入账
 	    clientRecordDAO.create(new ClientFundRecord(investAmount.getLeft(),
@@ -1168,7 +1170,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		FundRecordStatus.SUCCESSFUL,
 		FundRecordOperation.IN,
 		repayAmount.getRight(),
-		orderId, null, periodDesc));
+		orderId, null,investFund.getAvailableAmount(), periodDesc));
 
 	//大于0.01元才收，垫付只记录投资人费用，不用记录借款人费用
 	BigDecimal investFee = investAmount.getRight().setScale(2, NumberConstant.ROUNDING_MODE);
@@ -1180,7 +1182,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		    FundRecordStatus.SUCCESSFUL,
 		    FundRecordOperation.OUT,
 		    investFee,
-		    orderId, null,
+		    orderId, null,investFund.getAvailableAmount(),
 		    periodDesc));
 	    //收费账户入账
 	    clientRecordDAO.create(new ClientFundRecord(investAmount.getLeft(),
@@ -1231,7 +1233,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		transferIn ? FundRecordOperation.IN : FundRecordOperation.OUT,
 		amount,
 		orderId,
-		null, description));
+		null,fund.getAvailableAmount(), description));
 
 	// delete cache
 	appBean.deleteCache(userId, CacheConstant.KEY_PREFIX_USER_FUND);
@@ -1254,7 +1256,7 @@ public class FundRecordServiceBean implements FundRecordService {
 		com.creditcloud.common.utils.DTOUtils.convertRealmEntity(target),
 		type,
 		FundRecordStatus.SUCCESSFUL,
-		amount, orderId, null, account));
+		amount, orderId, null,fund.getAvailableAmount(), account));
 
 	// delete cache
 	appBean.deleteCache(userId, CacheConstant.KEY_PREFIX_USER_FUND);
@@ -1295,6 +1297,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1307,6 +1310,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1318,6 +1322,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1329,6 +1334,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1340,6 +1346,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1351,6 +1358,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1362,6 +1370,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1371,7 +1380,8 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getStatus(),
 			    record.getOperation(),
 			    record.getAmount(),
-			    record.getOrderId());
+			    record.getOrderId(),
+			    fund.getAvailableAmount());
 		    break;
 		case CREDIT_ASSIGN:
 		    result = new FundCreditAssign(fund,
@@ -1381,6 +1391,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    break;
 		case FEE_WITHDRAW:
@@ -1408,6 +1419,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1423,6 +1435,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 		    break;
@@ -1436,6 +1449,7 @@ public class FundRecordServiceBean implements FundRecordService {
 			    record.getAmount(),
 			    record.getOrderId(),
 			    record.getTransactionId(),
+			    fund.getAvailableAmount(),
 			    record.getDescription());
 		    result.setId(record.getId());
 	    }
@@ -1486,13 +1500,14 @@ public class FundRecordServiceBean implements FundRecordService {
 
 	    if (releaseRecord == null) {
 		//TODO for ump just generate release record
-		releaseRecord = new FundInvest(fundDAO.find(investUserId),
+		UserFund investUserFund=fundDAO.find(investUserId);
+		releaseRecord = new FundInvest(investUserFund,
 			new RealmEntity(Realm.FUNDINGINVEST, investId),
 			FundRecordStatus.SUCCESSFUL,
 			FundRecordOperation.RELEASE,
 			freezeRecord.getAmount(),
 			//TODO just forge this orderId, this is ok as ump has no freeze/release 
-			appBean.orderId(), null, null);
+			appBean.orderId(), null, investUserFund.getAvailableAmount(), null);
 		recordDAO.create(releaseRecord);
 
 		fundDAO.directRelease(investUserId, freezeRecord.getAmount());
