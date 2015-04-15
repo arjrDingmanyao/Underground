@@ -157,8 +157,9 @@ public class FundWithdrawHistory extends UUIDEntity {
 	    Date timeRecorded) {
 	this.fund = fund;
 	this.employeeId = employeeId;
-	this.bankName=bankName;
-	this.bankAccount=bankAccount;
+	this.bankName = bankName;
+	this.bankAccount = bankAccount;
+	this.amount = amount;
 	this.orderId = orderId;
 	this.transactionId = transactionId;
 	this.status = status;
