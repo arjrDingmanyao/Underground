@@ -184,7 +184,7 @@ public class SMSMessageServiceBean implements SMSMessageService {
 		break;
 	    case NOTIFICATION_AUTO_LOANS_OVERDUE_FAILURE_NOTICE:
 		logger.debug("SMSTye NOTIFICATION_AUTO_LOANS_OVERDUE_FAILURE_NOTICE");
-		content = String.format(contentTemplate, contents[0], contents[1], contents[2], contents[3], contents[4], contents[5]);
+		content = String.format(contentTemplate, contents[0], contents[1], contents[2], contents[3], contents[4], contents[5],contents[6]);
 		sMSMessageDAO.create(new com.creditcloud.sms.entities.SMSMessage(content ,mobile, new Date()));
 		break;
 	    default:
