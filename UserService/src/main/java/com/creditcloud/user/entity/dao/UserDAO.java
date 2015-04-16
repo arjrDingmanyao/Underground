@@ -123,6 +123,19 @@ public class UserDAO extends AbstractDAO<User> {
         }
         return result;
     }
+    
+     public User findByLoginNameOrMobile(String loginNameOrMobile) {
+        User result = null;
+        try {
+            result = (User) getEntityManager()
+                    .createNamedQuery("User.findByLoginNameOrMobile")
+                    .setParameter("loginNameOrMobile", loginNameOrMobile)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            logger.info("user with loginNameOrMobile not found.[loginNameOrMobile={}]", loginNameOrMobile);
+        }
+        return result;
+    }
 
     public User findByIdNumber(String idNumber) {
         User result = null;
