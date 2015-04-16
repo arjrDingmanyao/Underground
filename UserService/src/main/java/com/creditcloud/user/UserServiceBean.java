@@ -299,6 +299,12 @@ public class UserServiceBean implements UserService {
 	appBean.checkClientCode(clientCode);
 	return userDAO.checkLoginName(loginName);
     }
+    
+    @Override
+    public boolean checkLoginNameOrMobile(String clientCode, String loginNameOrMobile){
+        appBean.checkClientCode(clientCode);
+	return userDAO.checkLoginNameOrMobile(loginNameOrMobile);
+    }
 
     @Override
     public boolean checkEmail(String clientCode, String email) {
@@ -812,6 +818,7 @@ public class UserServiceBean implements UserService {
 	    return false;
 	}
 	user.password(newPassword);
+        user.setNeedChangePassword(false);
 	userDAO.edit(user);
 	return true;
     }

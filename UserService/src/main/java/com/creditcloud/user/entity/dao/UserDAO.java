@@ -82,6 +82,14 @@ public class UserDAO extends AbstractDAO<User> {
                 .getSingleResult();
         return count == 0;
     }
+    
+    public boolean checkLoginNameOrMobile(String loginNameOrMobile) {
+        Long count = (Long) getEntityManager()
+                .createNamedQuery("User.getUserCountByLoginNameOrMobile")
+                .setParameter("loginNameOrMobile", loginNameOrMobile)
+                .getSingleResult();
+        return count == 0;
+    }
 
     public boolean checkIdNumber(String idNumber) {
         Long count = (Long) getEntityManager()
