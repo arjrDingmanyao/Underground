@@ -62,13 +62,21 @@ public class FundWithdrawHistory extends UUIDEntity {
     private UserFund fund;
 
     /**
-     * 资金涉及的银行账户
+     * 资金涉及的银行账户 去除关联账户 实际存储银行卡和银行类型
      */
-    @ManyToOne
-    @JoinColumn(name = "FUND_ACCOUNT_ID")
+//    @ManyToOne
+//    @JoinColumn(name = "FUND_ACCOUNT_ID")
+//    @Getter
+//    @Setter
+//    private FundAccount account;
     @Getter
     @Setter
-    private FundAccount account;
+    private String bankName;
+
+    @Getter
+    @Setter
+    private String bankAccount;
+
     /**
      * 金额
      */
@@ -139,7 +147,8 @@ public class FundWithdrawHistory extends UUIDEntity {
     }
 
     public FundWithdrawHistory(UserFund fund,
-	    FundAccount account,
+	    String bankName,
+	    String bankAccount,
 	    String employeeId,
 	    BigDecimal amount,
 	    String orderId,
@@ -147,8 +156,9 @@ public class FundWithdrawHistory extends UUIDEntity {
 	    FundRecordStatus status,
 	    Date timeRecorded) {
 	this.fund = fund;
-	this.account = account;
 	this.employeeId = employeeId;
+	this.bankName = bankName;
+	this.bankAccount = bankAccount;
 	this.amount = amount;
 	this.orderId = orderId;
 	this.transactionId = transactionId;

@@ -417,7 +417,8 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
 	if (record != null) {
 	    result = new com.creditcloud.fund.model.FundWithdrawHistory(record.getId(),
 		    record.getFund().getUserId(),
-		    record.getAccount() == null ? null : getBankAccountDTO(record.getAccount().getAccount()),
+		    record.getBankName(),
+		    record.getBankAccount(),
 		    record.getAmount(),
 		    record.getEmployeeId(),
 		    record.getOrderId(),

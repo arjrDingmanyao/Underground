@@ -56,12 +56,9 @@ public class FundWithdrawHistoryServiceBean implements FundWithdrawHistoryServic
 	appBean.checkClientCode(clientCode);
 	logger.debug("Adding new FundWithdrawHistory:\n{}", record);
 	UserFund fund = fundDAO.find(record.getUserId());
-	FundAccount account = null;
-	if (record.getAccount() != null) {
-	    account = accountDAO.getByUserAndAccount(record.getUserId(), record.getAccount().getAccount());
-	}
 	FundWithdrawHistory persist = new FundWithdrawHistory(fund,
-		account,
+		record.getBankName(),
+		record.getBankAccount(),
 		record.getEmployeeId(),
 		record.getAmount(),
 		record.getOrderId(),
@@ -109,10 +106,8 @@ public class FundWithdrawHistoryServiceBean implements FundWithdrawHistoryServic
 	    persist.setTransferAmount(history.getTransferAmount());
 	    persist.setStatus(history.getStatus());
 	    persist.setTransactionId(history.getTransactionId());
-            if (history.getAccount() != null) {
-		FundAccount account = accountDAO.getByUserAndAccount(history.getUserId(), history.getAccount().getAccount());
-		persist.setAccount(account);
-	    }
+            persist.setBankName(history.getBankName());
+	    persist.setBankAccount(history.getBankAccount());
 	    //更新
 	    logger.debug("FundWithdrawHistory edit :{}", persist);
 	    fundWithdrawHistoryDAO.edit(persist);
