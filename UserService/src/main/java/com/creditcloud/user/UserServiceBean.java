@@ -250,6 +250,13 @@ public class UserServiceBean implements UserService {
 	appBean.checkClientCode(clientCode);
 	return DTOUtils.getUserDTO(userDAO.findByLoginName(loginName));
     }
+    
+      @Override
+    public com.creditcloud.model.user.User findByLoginNameOrMobile(String clientCode, String loginName) {
+	appBean.checkClientCode(clientCode);
+	return DTOUtils.getUserDTO(userDAO.findByLoginNameOrMobile(loginName));
+    }
+
 
     @Override
     public com.creditcloud.model.user.User findByUserId(String clientCode, String userId) {
@@ -298,6 +305,12 @@ public class UserServiceBean implements UserService {
     public boolean checkLoginName(String clientCode, String loginName) {
 	appBean.checkClientCode(clientCode);
 	return userDAO.checkLoginName(loginName);
+    }
+    
+    @Override
+    public boolean checkLoginNameOrMobile(String clientCode, String loginNameOrMobile){
+        appBean.checkClientCode(clientCode);
+	return userDAO.checkLoginNameOrMobile(loginNameOrMobile);
     }
 
     @Override
@@ -806,12 +819,13 @@ public class UserServiceBean implements UserService {
     public boolean foundPassword(String clientCode, String loginName, String newPassword) {
         appBean.checkClientCode(clientCode);
 	logger.debug("found password for user.[clientCode={}][loginName={}]", clientCode, loginName);
-	User user = userDAO.findByLoginName(loginName);
+	User user = userDAO.findByLoginNameOrMobile(loginName);
 	if (user == null) {
 	    logger.warn("user with loginName {} not found", loginName);
 	    return false;
 	}
 	user.password(newPassword);
+        user.setNeedChangePassword(false);
 	userDAO.edit(user);
 	return true;
     }

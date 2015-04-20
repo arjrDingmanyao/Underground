@@ -82,6 +82,14 @@ public class UserDAO extends AbstractDAO<User> {
                 .getSingleResult();
         return count == 0;
     }
+    
+    public boolean checkLoginNameOrMobile(String loginNameOrMobile) {
+        Long count = (Long) getEntityManager()
+                .createNamedQuery("User.getUserCountByLoginNameOrMobile")
+                .setParameter("loginNameOrMobile", loginNameOrMobile)
+                .getSingleResult();
+        return count == 0;
+    }
 
     public boolean checkIdNumber(String idNumber) {
         Long count = (Long) getEntityManager()
@@ -112,6 +120,19 @@ public class UserDAO extends AbstractDAO<User> {
                     .getSingleResult();
         } catch (NoResultException nre) {
             logger.info("user with loginName not found.[loginName={}]", loginName);
+        }
+        return result;
+    }
+    
+     public User findByLoginNameOrMobile(String loginNameOrMobile) {
+        User result = null;
+        try {
+            result = (User) getEntityManager()
+                    .createNamedQuery("User.findByLoginNameOrMobile")
+                    .setParameter("loginNameOrMobile", loginNameOrMobile)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            logger.info("user with loginNameOrMobile not found.[loginNameOrMobile={}]", loginNameOrMobile);
         }
         return result;
     }

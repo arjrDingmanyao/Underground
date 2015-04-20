@@ -70,6 +70,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                                                       record.getAmount(),
                                                                       record.getOrderId(),
                                                                       record.getTransactionId(),
+								      record.getAvailableAmount(),
                                                                       record.getDescription());
             result.setTimeRecorded(record.getTimeRecorded());
         }
@@ -192,6 +193,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                                                         fundWithdraw.getAmount(),
                                                                         fundWithdraw.getOrderId(),
                                                                         fundWithdraw.getTransactionId(),
+									fundWithdraw.getAvailableAmount(),
                                                                         fundWithdraw.getDescription());
             result.setTimeRecorded(fundWithdraw.getTimeRecorded());
         }
@@ -215,6 +217,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                                                       record.getAmount(),
                                                                       record.getOrderId(),
                                                                       record.getTransactionId(),
+									record.getAvailableAmount(),
                                                                       record.getDescription());
             result.setTimeRecorded(record.getTimeRecorded());
         }
@@ -237,6 +240,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                                                        record.getAmount(),
                                                                        record.getOrderId(),
                                                                        record.getTransactionId(),
+								       record.getAvailableAmount(),
                                                                        record.getDescription());
             result.setTimeRecorded(record.getTimeRecorded());
         }
@@ -260,6 +264,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                                                         record.getAmount(),
                                                                         record.getOrderId(),
                                                                         record.getTransactionId(),
+									record.getAvailableAmount(),
                                                                         record.getDescription());
             result.setTimeRecorded(record.getTimeRecorded());
         }
@@ -283,6 +288,7 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
                                                                             record.getAmount(),
                                                                             record.getOrderId(),
                                                                             record.getTransactionId(),
+									    record.getAvailableAmount(),
                                                                             record.getDescription());
             result.setTimeRecorded(record.getTimeRecorded());
         }
@@ -411,7 +417,8 @@ public class DTOUtils extends com.creditcloud.common.utils.DTOUtils {
 	if (record != null) {
 	    result = new com.creditcloud.fund.model.FundWithdrawHistory(record.getId(),
 		    record.getFund().getUserId(),
-		    record.getAccount() == null ? null : getBankAccountDTO(record.getAccount().getAccount()),
+		    record.getBankName(),
+		    record.getBankAccount(),
 		    record.getAmount(),
 		    record.getEmployeeId(),
 		    record.getOrderId(),

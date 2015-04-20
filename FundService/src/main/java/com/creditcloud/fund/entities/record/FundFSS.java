@@ -23,7 +23,7 @@ import javax.persistence.NamedQuery;
 @DiscriminatorValue("FundFSS")
 @NamedQueries({
     @NamedQuery(name = "FundFSS.getByOrderId",
-                query = "select fd from FundFSS fd where fd.fund.userId = :userId and fd.orderId = :orderId")
+	    query = "select fd from FundFSS fd where fd.fund.userId = :userId and fd.orderId = :orderId")
 })
 public class FundFSS extends FundRecord {
 
@@ -31,19 +31,19 @@ public class FundFSS extends FundRecord {
     }
 
     public FundFSS(UserFund fund,
-                   FundRecordType type,
-                   FundRecordStatus status,
-                   FundRecordOperation operation,
-                   BigDecimal amount,
-                   String orderId) {
-        super(fund,
-              null,
-              null,
-              type,
-              status,
-              operation,
-              amount,
-              orderId,
-              null, null);
+	    FundRecordType type,
+	    FundRecordStatus status,
+	    FundRecordOperation operation,
+	    BigDecimal amount,
+	    String orderId, BigDecimal availableAmount) {
+	super(fund,
+		null,
+		null,
+		type,
+		status,
+		operation,
+		amount,
+		orderId,
+		null, availableAmount, null);
     }
 }

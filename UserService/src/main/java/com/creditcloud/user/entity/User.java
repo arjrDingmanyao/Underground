@@ -75,6 +75,8 @@ import org.eclipse.persistence.annotations.Converter;
      */
     @NamedQuery(name = "User.findByLoginName",
                 query = "SELECT u FROM User u WHERE u.loginName = :loginName"),
+     @NamedQuery(name = "User.findByLoginNameOrMobile",
+                query = "SELECT u FROM User u WHERE u.loginName = :loginNameOrMobile or u.mobile = :loginNameOrMobile"),
     @NamedQuery(name = "User.findByMobile",
                 query = "SELECT u FROM User u WHERE u.mobile = :mobile"),
     @NamedQuery(name = "User.findByIdNumber",
@@ -88,6 +90,8 @@ import org.eclipse.persistence.annotations.Converter;
                 query = "SELECT COUNT(u) from User u WHERE u.mobile = :mobile"),
     @NamedQuery(name = "User.getUserCountByLoginName",
                 query = "SELECT COUNT(u) from User u WHERE u.loginName = :loginName"),
+    @NamedQuery(name = "User.getUserCountByLoginNameOrMobile",
+                query = "SELECT COUNT(u) from User u WHERE u.loginName = :loginNameOrMobile or u.mobile = :loginNameOrMobile"),
     @NamedQuery(name = "User.getUserCountByIdNumber",
                 query = "SELECT COUNT(u) from User u WHERE u.idNumber = :idNumber"),
     @NamedQuery(name = "User.getUserCountByEmail",

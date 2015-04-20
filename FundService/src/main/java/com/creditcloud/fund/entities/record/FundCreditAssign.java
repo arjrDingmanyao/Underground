@@ -41,6 +41,7 @@ public class FundCreditAssign extends FundRecord{
                             BigDecimal amount, 
                             String orderId, 
                             String transactionId, 
+			    BigDecimal availableAmount,
                             String description) {
         super(fund, 
               null,
@@ -51,6 +52,7 @@ public class FundCreditAssign extends FundRecord{
               amount, 
               orderId, 
               transactionId,
+	      availableAmount, 
               description);
     }
 }
